@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2025-11-11
+
+### UI (Homebridge UI X)
+
+- La UI amministrativa è ora interamente integrata nella pagina del plugin in Homebridge UI X.
+- Rimossa la vecchia pagina esterna servita su `/admin/ui` (non più disponibile).
+- Il bridge UI (`homebridge-ui/server.js`) inoltra in locale verso gli endpoint admin sicuri:
+  - `/admin/ui/state`, `/admin/webhooks/:name/info`, `/admin/webhooks/:name/ephemeral`, `/admin/webhooks/:name/regenerate`.
+- Niente token permanenti nei log; generazione URL temporanei con token effimeri.
+
+### Packaging / Metadata
+
+- Aggiunta dichiarazione `homebridge.ui` in `package.json` per Homebridge UI X.
+- Rimossa la vecchia directory `src/ui/` dal progetto (era la UI esterna).
+
 ## [0.1.9] - 2025-11-11
 
 ### UI Integrata (Homebridge UI)

@@ -51,6 +51,10 @@ UI integrata (dentro Homebridge Config UI):
 - Usa "Genera URL temporaneo" per ottenere un URL a vita breve (token effimero) senza esporre il token permanente.
 - Il token permanente viene mostrato solo se era stato già rivelato in precedenza.
 
+Nota:
+
+- Dalla versione v0.2.0 la vecchia pagina esterna `/admin/ui` è stata rimossa. Usa la pagina del plugin dentro Homebridge UI.
+
 Note:
 
 - Gli endpoint admin sono accessibili solo da rete locale; se `adminSecret` è impostato, è obbligatorio fornirlo (header `x-admin-secret` o query `?adminSecret=`).

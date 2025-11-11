@@ -3,7 +3,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { v4: uuidv4 } = require("uuid");
-const path = require("path");
 
 module.exports = function createServer(platform) {
 	const app = express();
@@ -144,9 +143,8 @@ module.exports = function createServer(platform) {
 		return res.json({ webhooks, emailTriggers: emails });
 	});
 
-	// Serve static custom UI
-	const uiDir = path.join(__dirname, "ui");
-	app.use("/admin/ui", express.static(uiDir, { index: "index.html" }));
+	// Nota: la UI è ora integrata in Homebridge UI X tramite `homebridge-ui/`.
+	// Non serviamo più una pagina esterna su /admin/ui.
 
 	const server = app.listen(platform.port, platform.bindAddress, () => {
 		platform.log.info(`Webhook server listening on ${platform._serverBaseUrl()} (local-only=${platform.enforceLocalOnly})`);
