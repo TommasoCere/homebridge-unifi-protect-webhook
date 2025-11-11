@@ -1,9 +1,22 @@
-name: Release and Publish
+name: Release (manual)
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da rilasciare (es. v0.1.2)"
+        required: true
+        type: string
+      create_release:
+        description: "Crea la GitHub Release"
+        required: true
+        default: false
+        type: boolean
+      publish_npm:
+        description: "Pubblica su npm"
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build-publish:
@@ -22,21 +35,22 @@ jobs:
         run: npm audit --omit=dev || echo 'Audit failed (non-blocking)'
       - name: Extract version
         id: pkg
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
       - name: Create GitHub Release
+        if: inputs.create_release == true
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
+          tag_name: ${{ inputs.tag }}
+          name: ${{ inputs.tag }}
           body: |
-            Release ${{ github.ref_name }}
+            Release ${{ inputs.tag }}
             Version: ${{ steps.pkg.outputs.version }}
             Changelog excerpt:
             $(grep -A5 "## [${{ steps.pkg.outputs.version }}]" CHANGELOG.md || echo 'See CHANGELOG.md')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish to npm
-        if: startsWith(github.ref, 'refs/tags/')
+        if: inputs.publish_npm == true
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
