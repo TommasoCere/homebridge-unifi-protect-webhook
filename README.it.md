@@ -17,6 +17,16 @@ Plugin per Homebridge che espone endpoint Webhook locali e trigger via Email IMA
 2. Riavvia Homebridge.
 3. Configura dalla UI di Homebridge (Platform: `ProtectWebhookPlatform`).
 
+### Dove trovare la UI Amministrativa (integrata)
+
+- Apri Homebridge UI X e clicca su questo plugin.
+- Nella pagina del plugin vedrai il form di configurazione (Webhooks / Email triggers) e un pannello/sezione Admin con la UI avanzata.
+- La UI Admin mostra i tuoi webhooks e i trigger email e consente di:
+  - Vedere info sicure dell’URL del webhook (token redatto se non è la prima rivelazione).
+  - Generare URL temporanei con token a vita breve.
+  - Rigenerare il token permanente (prima rivelazione).
+  - Potrebbe essere richiesto `adminSecret` se configurato.
+
 ## Sicurezza
 
 - Il server per default ascolta su `0.0.0.0` ma blocca gli IP non locali (enforceLocalOnly=true). Puoi cambiare `bindAddress` se necessario.

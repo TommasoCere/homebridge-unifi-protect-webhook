@@ -17,17 +17,16 @@ All notable changes to this project will be documented in this file.
 - Aggiunta dichiarazione `homebridge.ui` in `package.json` per Homebridge UI X.
 - Rimossa la vecchia directory `src/ui/` dal progetto (era la UI esterna).
 
-## [0.1.9] - 2025-11-11
+ 
+## [0.2.1] - 2025-11-11
 
-### UI Integrata (Homebridge UI)
+### Fix
 
-- Aggiunta Custom Plugin UI: la gestione avviene nella scheda del plugin (Homebridge UI v5.9.0+).
-- La UI usa un server interno (homebridge-ui/server.js) che effettua proxy sicuro verso gli endpoint admin (state/info/ephemeral/regenerate) su loopback.
-- Nessuna esposizione di token permanenti non rivelati; pulsante per generare URL temporanei con token effimero.
+- Corretto `package.json`: spostato `ui` a livello top per Homebridge UI X (prima era annidato in `homebridge`).
+- Aggiunto `displayName` del plugin.
+- Rimossa fisicamente la cartella legacy `src/ui/`.
 
-### Packaging
-
-- Incluso `homebridge-ui/` nel pacchetto npm.
+ 
 
 ## [0.1.8] - 2025-11-11
 

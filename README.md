@@ -17,6 +17,16 @@ Homebridge plugin that exposes local HTTP webhook endpoints and IMAP email trigg
 2. Restart Homebridge.
 3. Configure via Homebridge UI (Platform: `ProtectWebhookPlatform`).
 
+### Where to find the Admin UI (integrated)
+
+- Open Homebridge UI X and click on this plugin.
+- In the plugin page you will see the configuration form (Webhooks / Email triggers) and a separate Admin panel with the advanced UI.
+- The Admin UI shows your webhooks and email triggers, and lets you:
+  - View safe webhook info (token redacted if not first reveal).
+  - Generate temporary URLs with short‑lived tokens.
+  - Regenerate a permanent token (first reveal only).
+  - You may need to provide the `adminSecret` if configured.
+
 ## Security
 
 - Server binds by default to `0.0.0.0` but blocks non-local IPs if `enforceLocalOnly=true`.
