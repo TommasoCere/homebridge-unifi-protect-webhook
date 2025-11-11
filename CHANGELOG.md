@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.5] - 2025-11-11
+
+### UI
+
+- Fixed duplicated headings in settings (e.g., "Webhooks / Webhooks", "Email / Email triggers") by removing array titles and using section headers only.
+- Improved readability of array items with per-item titles.
+
 ## [0.1.4] - 2025-11-11
 
 ### Performance

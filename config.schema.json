@@ -34,9 +34,10 @@
       },
       "webhooks": {
         "type": "array",
-        "title": "Webhooks",
+        "title": "",
         "items": {
           "type": "object",
+          "title": "Webhook",
           "properties": {
             "name": { "type": "string", "title": "Name" },
             "path": { "type": "string", "title": "Path (optional)", "description": "Se vuoto: /wh/<slug-del-nome>. Accetta GET/POST." },
@@ -50,7 +51,7 @@
       },
       "emailTriggers": {
         "type": "array",
-        "title": "Email triggers",
+        "title": "",
         "items": {
           "type": "object",
           "title": "Email trigger",
