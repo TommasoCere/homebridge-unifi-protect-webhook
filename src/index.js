@@ -29,6 +29,9 @@ class ProtectWebhookPlatform {
 		this.emailTriggers = Array.isArray(this.config.emailTriggers) ? this.config.emailTriggers : [];
 		this.adminSecret = this.config.adminSecret || null; // optional secret for admin endpoints
 
+		// Ephemeral tokens store: Map<webhookName, Array<{token, expiresAt}>>
+		this._ephemeralTokens = new Map();
+
 		// Security options
 		this.bindAddress = this.config.bindAddress || "0.0.0.0"; // default: all interfaces (but we'll enforce local-only)
 		this.port = this.config.port || 12050;
@@ -143,8 +146,14 @@ class ProtectWebhookPlatform {
 	}
 
 	_computeWebhookPath(wh) {
-		const basePath = wh.path && wh.path.trim().length > 0 ? wh.path.trim() : `/wh/${encodeURIComponent(wh.name.toLowerCase().replace(/\s+/g, "-"))}`;
-		return basePath.startsWith("/") ? basePath : `/${basePath}`;
+		let basePath = wh.path && wh.path.trim().length > 0 ? wh.path.trim() : `/wh/${encodeURIComponent(wh.name.toLowerCase().replace(/\s+/g, "-"))}`;
+		if (!basePath.startsWith("/")) basePath = `/${basePath}`;
+		if (!basePath.startsWith("/wh/")) {
+			// enforce prefix
+			const rest = basePath.startsWith("/") ? basePath.substring(1) : basePath;
+			basePath = `/wh/${rest.replace(/^wh\/?/, "")}`;
+		}
+		return basePath;
 	}
 
 	_composeWebhookUrl(req, wh) {
@@ -170,6 +179,28 @@ class ProtectWebhookPlatform {
 		} catch (_) {
 			return url;
 		}
+	}
+
+	// Ephemeral token helpers
+	_addEphemeralToken(name, token, ttlMs) {
+		const now = Date.now();
+		const expiresAt = now + Math.max(1000, ttlMs || 300000);
+		const list = this._ephemeralTokens.get(name) || [];
+		// prune old
+		const fresh = list.filter((e) => e.expiresAt > now);
+		fresh.push({ token, expiresAt });
+		this._ephemeralTokens.set(name, fresh);
+		return { token, expiresAt };
+	}
+
+	_isEphemeralTokenValid(name, token) {
+		if (!token) return false;
+		const now = Date.now();
+		const list = this._ephemeralTokens.get(name);
+		if (!Array.isArray(list) || list.length === 0) return false;
+		const fresh = list.filter((e) => e.expiresAt > now);
+		this._ephemeralTokens.set(name, fresh);
+		return fresh.some((e) => e.token === token);
 	}
 
 	// Cleanup on shutdown

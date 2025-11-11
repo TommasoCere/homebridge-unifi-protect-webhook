@@ -47,9 +47,11 @@ module.exports = function setupWebhooks(platform) {
 				return res.status(403).json({ error: "forbidden" });
 			}
 
-			// Token header or query
+
+			// Token header or query (supports ephemeral tokens)
 			const token = req.get("x-webhook-token") || req.query.token || req.body?.token;
-			if (!token || token !== wh.token) {
+			const valid = !!token && (token === wh.token || platform._isEphemeralTokenValid(wh.name, token));
+			if (!valid) {
 				platform.log.warn(`Webhook '${wh.name}': invalid or missing token from ${ip}`);
 				return res.status(401).json({ error: "unauthorized" });
 			}

@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] - 2025-11-11
+
+### Features
+
+- Admin endpoint POST `/admin/webhooks/:name/ephemeral` to generate a temporary full URL (short‑lived token) after configuration is complete.
+- Webhook handlers accept ephemeral tokens until expiry (default 5 minutes), in addition to the permanent token.
+
+### Config
+
+- `webhooks[].path` is now required and must start with `/wh/` (schema enforces via regex). The runtime also normalizes the prefix for robustness.
+
+### Security/Privacy
+
+- Admin endpoints remain local‑only and require `adminSecret` if configured; logs still redact sensitive params.
+
 ## [0.1.6] - 2025-11-11
 
 ### UI/Compatibility

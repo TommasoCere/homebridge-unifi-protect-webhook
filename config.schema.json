@@ -40,13 +40,13 @@
           "title": "Webhook",
           "properties": {
             "name": { "type": "string", "title": "Name" },
-            "path": { "type": "string", "title": "Path (optional)", "description": "Se vuoto: /wh/<slug-del-nome>. Accetta GET/POST." },
+            "path": { "type": "string", "title": "Path (obbligatorio)", "description": "Deve iniziare con /wh/ (es. /wh/porta-ingresso)", "pattern": "^/wh/.*" },
             "token": { "type": "string", "title": "Token (optional, auto-generated if empty)", "description": "Se vuoto viene generato automaticamente e NON viene scritto nei log. Puoi recuperarlo in modo sicuro via endpoint admin /admin/webhooks/<name>/token." },
             "debounceSeconds": { "type": "number", "title": "Debounce (s)", "default": 0 },
             "durationSeconds": { "type": "number", "title": "Duration ON (s)", "default": 10 },
             "allowedIps": { "type": "string", "title": "Allowed IPs (comma-separated)" }
           },
-          "required": ["name"]
+          "required": ["name", "path"]
         }
       },
       "emailTriggers": {
