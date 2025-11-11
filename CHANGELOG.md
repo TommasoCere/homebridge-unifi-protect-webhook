@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2025-11-11
+
+### UI/Compatibility
+
+- Reverted to default layout (removed custom layout sections) to restore field rendering on older Homebridge Config UI versions.
+- Restored array titles (Webhooks / Email triggers) so inputs appear reliably.
+
 ## [0.1.5] - 2025-11-11
 
 ### UI

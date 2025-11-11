@@ -34,7 +34,7 @@
       },
       "webhooks": {
         "type": "array",
-        "title": "",
+        "title": "Webhooks",
         "items": {
           "type": "object",
           "title": "Webhook",
@@ -51,7 +51,7 @@
       },
       "emailTriggers": {
         "type": "array",
-        "title": "",
+        "title": "Email triggers",
         "items": {
           "type": "object",
           "title": "Email trigger",
@@ -72,10 +72,4 @@
     },
     "required": []
   }
-  ,
-  "layout": [
-    { "type": "section", "title": "Generale", "items": ["name", "adminSecret", "bindAddress", "port", "enforceLocalOnly"] },
-    { "type": "section", "title": "Webhooks", "description": "Configura uno o più webhook. Se lasci vuoti path/token vengono generati automaticamente.", "items": ["webhooks"] },
-    { "type": "section", "title": "Email", "description": "Trigger IMAP generici (qualsiasi vendor). Ogni elemento crea un sensore di movimento.", "items": ["emailTriggers"] }
-  ]
 }
