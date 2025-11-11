@@ -26,19 +26,31 @@ async function startImapMonitor(platform, cfg, accessory) {
 		port: cfg.imapPort || 993,
 		secure: cfg.imapTls !== false,
 		auth: { user: cfg.imapUser, pass: cfg.imapPassword },
-		logger: false
+		logger: false,
+		keepalive: { interval: 300000, idleInterval: 300000, forceNoop: true }
 	});
 
+	// prevent overlapping processing bursts
+	cfg._processing = false;
+	cfg._pending = false;
+
 	const processUnseen = async () => {
+		if (cfg._processing) {
+			cfg._pending = true;
+			return;
+		}
+		cfg._processing = true;
 		try {
 			const uids = await client.search({ seen: false }, { uid: true });
 			if (!uids || uids.length === 0) return;
-			for (const uid of uids) {
-				const msg = await client.fetchOne(uid, { envelope: true }, { uid: true });
+
+			const toMarkSeen = [];
+			// Batch fetch envelopes for all unseen using generator
+			for await (const msg of client.fetch(uids, { envelope: true }, { uid: true })) {
 				const subject = msg?.envelope?.subject || "";
+				const uid = msg.uid;
 				if (!subject) {
-					// still mark seen to avoid loops
-					await client.messageFlagsAdd(uid, ['\\Seen'], { uid: true });
+					toMarkSeen.push(uid);
 					continue;
 				}
 				if (matchSubject(subject, cfg.subjectMatch)) {
@@ -51,11 +63,23 @@ async function startImapMonitor(platform, cfg, accessory) {
 						platform.log.info(`Email trigger '${cfg.name}' fired (subject matched: "${subject}")`);
 					}
 				}
-				// mark seen in any case to avoid re-processing
-				try { await client.messageFlagsAdd(uid, ['\\Seen'], { uid: true }); } catch (_) {}
+				toMarkSeen.push(uid);
+			}
+
+			// Batch mark as seen in chunks to avoid large commands
+			for (let i = 0; i < toMarkSeen.length; i += 50) {
+				const chunk = toMarkSeen.slice(i, i + 50);
+				try { await client.messageFlagsAdd(chunk, ['\\Seen'], { uid: true }); } catch (_) {}
 			}
 		} catch (err) {
 			platform.log.error(`Error processing new mail for '${cfg.name}':`, err.message || err);
+		} finally {
+			cfg._processing = false;
+			if (cfg._pending) {
+				cfg._pending = false;
+				// process any new arrivals accumulated during processing
+				setImmediate(() => processUnseen().catch(() => {}));
+			}
 		}
 	};
 

@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2025-11-11
+
+### Performance
+
+- IMAP email trigger processing now batches unseen message fetches using `fetch()` iterator instead of per‑message `fetchOne`.
+- Batch marking messages as \Seen in chunks of 50 to reduce flag update round‑trips.
+- Added lightweight processing lock to avoid overlapping bursts and race conditions when multiple 'exists' events fire quickly.
+- Added keepalive options (NOOP every 5min) to reduce idle disconnects on some providers.
+
+### Reliability
+
+- Prevent double processing by queuing a single pending re-run if new mail arrives during batch processing.
+
+### Internal
+
+- No functional changes to matching logic; still generic (regex or substring) for any camera/platform mail alerts.
+
+
 ## [0.1.3] - 2025-11-11
 
 ### Added

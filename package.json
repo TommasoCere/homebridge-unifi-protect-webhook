@@ -1,6 +1,6 @@
 {
 	"name": "homebridge-unifi-protect-webhook",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"description": "Homebridge plugin: expose local webhook endpoints and email triggers as HomeKit Motion sensors for UniFi Protect/Reolink integration.",
 	"main": "src/index.js",
 	"keywords": [
