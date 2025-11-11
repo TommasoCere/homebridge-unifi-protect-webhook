@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] - 2025-11-11
+- Bumped version to 0.1.2 in package.json and CHANGELOG.md.
+
 ## [0.1.1] - 2025-11-11
 
 - Bilingual documentation (English + Italian) finalized.
