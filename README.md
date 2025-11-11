@@ -23,7 +23,7 @@ Homebridge plugin that exposes local HTTP webhook endpoints and IMAP email trigg
 - Always use webhook tokens. If empty, one is generated and stored in accessory context (not printed in logs).
 - Further restrict with `allowedIps` (comma‑separated list).
 
-### Token reveal, URL info & custom Admin UI
+### Token reveal, URL info & UI integrata in Homebridge
 
 - Set an `adminSecret` to enable admin endpoints.
 - Reveal token once (only if auto-generated and not revealed before):
@@ -44,12 +44,12 @@ curl "http://<HB-IP>:12050/admin/webhooks/<NAME>/info?adminSecret=<ADMIN_SECRET>
 curl -X POST "http://<HB-IP>:12050/admin/webhooks/<NAME>/regenerate?adminSecret=<ADMIN_SECRET>"
 ```
 
-Admin UI (alternative to invoking endpoints manually):
+Integrated UI (inside Homebridge Config UI):
 
-- Open `http://<HB-IP>:12050/admin/ui` from your LAN.
-- Enter `adminSecret` (if configured) and click Login.
-- Use "Generate temporary URL" to obtain a short‑lived URL (ephemeral token) without exposing the permanent token.
-- Permanent token is shown only if previously revealed.
+- Go to the plugin tile and open its configuration page in Homebridge UI.
+- Use the embedded tab "Admin" to see your webhooks and email triggers.
+- Click "Generate temporary URL" to get a short‑lived URL (ephemeral token) without exposing permanent tokens.
+- Permanent token is only shown if it was previously revealed.
 
 Notes:
 

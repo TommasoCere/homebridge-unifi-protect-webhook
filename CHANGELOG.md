@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9] - 2025-11-11
+
+### UI Integrata (Homebridge UI)
+
+- Aggiunta Custom Plugin UI: la gestione avviene nella scheda del plugin (Homebridge UI v5.9.0+).
+- La UI usa un server interno (homebridge-ui/server.js) che effettua proxy sicuro verso gli endpoint admin (state/info/ephemeral/regenerate) su loopback.
+- Nessuna esposizione di token permanenti non rivelati; pulsante per generare URL temporanei con token effimero.
+
+### Packaging
+
+- Incluso `homebridge-ui/` nel pacchetto npm.
+
 ## [0.1.8] - 2025-11-11
 
 ### New: Custom Admin UI

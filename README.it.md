@@ -23,7 +23,7 @@ Plugin per Homebridge che espone endpoint Webhook locali e trigger via Email IMA
 - Usa sempre i token per i webhook. Se lasci vuoto, il plugin ne genera uno e lo salva nel contesto dell'accessorio (persistente in Homebridge).
 - Puoi ulteriormente restringere con `allowedIps` (lista separata da virgole).
 
-### Token, URL & UI Amministrativa
+### Token, URL & UI Integrata in Homebridge
 
 - Imposta un `adminSecret` nella configurazione del plugin per usare gli endpoint amministrativi.
 - Per vedere il token di un webhook (solo se auto-generato e non ancora rivelato):
@@ -44,12 +44,12 @@ curl "http://<IP-HB>:12050/admin/webhooks/<NOME>/info?adminSecret=<ADMIN_SECRET>
 curl -X POST "http://<IP-HB>:12050/admin/webhooks/<NOME>/regenerate?adminSecret=<ADMIN_SECRET>"
 ```
 
-UI Amministrativa (alternativa agli endpoint diretti):
+UI integrata (dentro Homebridge Config UI):
 
-- Apri `http://<IP-HB>:12050/admin/ui` dalla rete locale.
-- Inserisci l'`adminSecret` se configurato e premi Login.
-- Usa il bottone "Genera URL temporaneo" su un webhook per ottenere un URL con token effimero (valido pochi minuti) senza esporre quello permanente.
-- Il token permanente viene mostrato solo se già rivelato inizialmente.
+- Apri la scheda del plugin in Homebridge UI.
+- Troverai una tab "Admin" con Webhooks ed Email triggers.
+- Usa "Genera URL temporaneo" per ottenere un URL a vita breve (token effimero) senza esporre il token permanente.
+- Il token permanente viene mostrato solo se era stato già rivelato in precedenza.
 
 Note:
 
