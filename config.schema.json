@@ -13,7 +13,7 @@
       "adminSecret": {
         "type": "string",
         "title": "Admin Secret (opzionale)",
-        "description": "Segreto per endpoint amministrativi (reveal/regenerate token). Non viene mostrato nei log. Consigliato impostarlo."
+        "description": "Segreto per endpoint amministrativi (reveal/regenerate token e info URL). Non viene mostrato nei log. Consigliato impostarlo."
       },
       "bindAddress": {
         "type": "string",
@@ -39,8 +39,8 @@
           "type": "object",
           "properties": {
             "name": { "type": "string", "title": "Name" },
-            "path": { "type": "string", "title": "Path (optional)" },
-            "token": { "type": "string", "title": "Token (optional, auto-generated if empty)" },
+            "path": { "type": "string", "title": "Path (optional)", "description": "Se vuoto: /wh/<slug-del-nome>. Accetta GET/POST." },
+            "token": { "type": "string", "title": "Token (optional, auto-generated if empty)", "description": "Se vuoto viene generato automaticamente e NON viene scritto nei log. Puoi recuperarlo in modo sicuro via endpoint admin /admin/webhooks/<name>/token." },
             "debounceSeconds": { "type": "number", "title": "Debounce (s)", "default": 0 },
             "durationSeconds": { "type": "number", "title": "Duration ON (s)", "default": 10 },
             "allowedIps": { "type": "string", "title": "Allowed IPs (comma-separated)" }
@@ -53,6 +53,8 @@
         "title": "Email triggers",
         "items": {
           "type": "object",
+          "title": "Email trigger",
+          "collapsed": true,
           "properties": {
             "name": { "type": "string", "title": "Name" },
             "imapHost": { "type": "string", "title": "IMAP Host (gmail: imap.gmail.com)" },
@@ -70,4 +72,24 @@
     },
     "required": []
   }
+  ,
+  "layout": [
+    {
+      "type": "tabs",
+      "items": [
+        {
+          "title": "Generale",
+          "items": ["name", "adminSecret", "bindAddress", "port", "enforceLocalOnly"]
+        },
+        {
+          "title": "Webhooks",
+          "items": ["webhooks"]
+        },
+        {
+          "title": "Email",
+          "items": ["emailTriggers"]
+        }
+      ]
+    }
+  ]
 }

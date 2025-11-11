@@ -23,13 +23,19 @@ Homebridge plugin that exposes local HTTP webhook endpoints and IMAP email trigg
 - Always use webhook tokens. If empty, one is generated and stored in accessory context (not printed in logs).
 - Further restrict with `allowedIps` (comma‑separated list).
 
-### Token reveal (one-time) & regenerate
+### Token reveal (one-time), URL info & regenerate
 
 - Set an `adminSecret` to enable admin endpoints.
 - Reveal token once (only if auto-generated and not revealed before):
 
 ```powershell
 curl "http://<HB-IP>:12050/admin/webhooks/<NAME>/token?adminSecret=<ADMIN_SECRET>"
+```
+
+- Get a ready-to-use webhook URL (token redacted if not yet revealed):
+
+```powershell
+curl "http://<HB-IP>:12050/admin/webhooks/<NAME>/info?adminSecret=<ADMIN_SECRET>"
 ```
 
 - Regenerate a lost token:
@@ -41,7 +47,7 @@ curl -X POST "http://<HB-IP>:12050/admin/webhooks/<NAME>/regenerate?adminSecret=
 Notes:
 
 - Admin endpoints are local‑network only; if `adminSecret` is set, it must be provided (header `x-admin-secret` or query `?adminSecret=`).
-- Tokens are never logged; copy from the admin endpoint response and store securely.
+- Tokens are never logged and sensitive query params are redacted in logs (`token`/`adminSecret`). Copy from the admin endpoint response and store securely.
 
 ## Configuration (Homebridge UI)
 

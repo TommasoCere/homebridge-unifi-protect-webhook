@@ -23,13 +23,19 @@ Plugin per Homebridge che espone endpoint Webhook locali e trigger via Email IMA
 - Usa sempre i token per i webhook. Se lasci vuoto, il plugin ne genera uno e lo salva nel contesto dell'accessorio (persistente in Homebridge).
 - Puoi ulteriormente restringere con `allowedIps` (lista separata da virgole).
 
-### Token: reveal solo quando serve, senza log
+### Token e URL: reveal solo quando serve, senza log
 
 - Imposta un `adminSecret` nella configurazione del plugin per usare gli endpoint amministrativi.
 - Per vedere il token di un webhook (senza stamparlo nei log):
 
 ```powershell
 curl "http://<IP-HB>:12050/admin/webhooks/<NOME>/token?adminSecret=<ADMIN_SECRET>"
+```
+
+- Per visualizzare un URL pronto all'uso del webhook (con token redatto se non ancora rivelato):
+
+```powershell
+curl "http://<IP-HB>:12050/admin/webhooks/<NOME>/info?adminSecret=<ADMIN_SECRET>"
 ```
 
 - Per rigenerare un token smarrito:
@@ -41,7 +47,11 @@ curl -X POST "http://<IP-HB>:12050/admin/webhooks/<NOME>/regenerate?adminSecret=
 Note:
 
 - Gli endpoint admin sono accessibili solo da rete locale; se `adminSecret` è impostato, è obbligatorio fornirlo (header `x-admin-secret` o query `?adminSecret=`).
-- I token non vengono scritti nei log. Copiali dalla risposta dell'endpoint admin e conservali in modo sicuro.
+- I token non vengono scritti nei log e le query sensibili nei log vengono redatte (`token`/`adminSecret`). Usa gli endpoint admin per recuperarli e conservali in modo sicuro.
+
+## UI Config (tabs)
+
+La pagina di configurazione in Homebridge è organizzata a tab: Generale, Webhooks, Email. La sezione "Email" è collassata per impostazione predefinita. Nei Webhook, se lasci il `path` vuoto, verrà creato automaticamente come `/wh/<nome-normalizzato>`.
 
 ## Configurazione (Homebridge UI)
 
