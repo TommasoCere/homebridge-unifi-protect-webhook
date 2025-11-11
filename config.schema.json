@@ -1,0 +1,73 @@
+{
+  "pluginAlias": "ProtectWebhookPlatform",
+  "pluginType": "platform",
+  "singular": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "title": "Name",
+        "default": "ProtectWebhookPlatform"
+      },
+      "adminSecret": {
+        "type": "string",
+        "title": "Admin Secret (opzionale)",
+        "description": "Segreto per endpoint amministrativi (reveal/regenerate token). Non viene mostrato nei log. Consigliato impostarlo."
+      },
+      "bindAddress": {
+        "type": "string",
+        "title": "Bind address",
+        "description": "Indirizzo su cui il server HTTP ascolta (default 0.0.0.0). L'accesso è comunque limitato alla rete locale se enforceLocalOnly=true",
+        "default": "0.0.0.0"
+      },
+      "port": {
+        "type": "number",
+        "title": "Port",
+        "default": 12050
+      },
+      "enforceLocalOnly": {
+        "type": "boolean",
+        "title": "Enforce local-only",
+        "description": "Se true (default) blocca richieste da IP non privati RFC1918/loopback",
+        "default": true
+      },
+      "webhooks": {
+        "type": "array",
+        "title": "Webhooks",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string", "title": "Name" },
+            "path": { "type": "string", "title": "Path (optional)" },
+            "token": { "type": "string", "title": "Token (optional, auto-generated if empty)" },
+            "debounceSeconds": { "type": "number", "title": "Debounce (s)", "default": 0 },
+            "durationSeconds": { "type": "number", "title": "Duration ON (s)", "default": 10 },
+            "allowedIps": { "type": "string", "title": "Allowed IPs (comma-separated)" }
+          },
+          "required": ["name"]
+        }
+      },
+      "emailTriggers": {
+        "type": "array",
+        "title": "Email triggers",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string", "title": "Name" },
+            "imapHost": { "type": "string", "title": "IMAP Host (gmail: imap.gmail.com)" },
+            "imapPort": { "type": "number", "title": "IMAP Port", "default": 993 },
+            "imapTls": { "type": "boolean", "title": "Use TLS", "default": true },
+            "imapUser": { "type": "string", "title": "IMAP Username / Email" },
+            "imapPassword": { "type": "string", "title": "IMAP Password / App Password" },
+            "subjectMatch": { "type": "string", "title": "Subject regex or substring to match" },
+            "debounceSeconds": { "type": "number", "title": "Debounce (s)", "default": 0 },
+            "durationSeconds": { "type": "number", "title": "Duration ON (s)", "default": 10 }
+          },
+          "required": ["name", "imapHost", "imapUser", "imapPassword", "subjectMatch"]
+        }
+      }
+    },
+    "required": []
+  }
+}
