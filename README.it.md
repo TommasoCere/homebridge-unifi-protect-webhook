@@ -23,16 +23,16 @@ Plugin per Homebridge che espone endpoint Webhook locali e trigger via Email IMA
 - Usa sempre i token per i webhook. Se lasci vuoto, il plugin ne genera uno e lo salva nel contesto dell'accessorio (persistente in Homebridge).
 - Puoi ulteriormente restringere con `allowedIps` (lista separata da virgole).
 
-### Token e URL: reveal solo quando serve, senza log
+### Token, URL & UI Amministrativa
 
 - Imposta un `adminSecret` nella configurazione del plugin per usare gli endpoint amministrativi.
-- Per vedere il token di un webhook (senza stamparlo nei log):
+- Per vedere il token di un webhook (solo se auto-generato e non ancora rivelato):
 
 ```powershell
 curl "http://<IP-HB>:12050/admin/webhooks/<NOME>/token?adminSecret=<ADMIN_SECRET>"
 ```
 
-- Per visualizzare un URL pronto all'uso del webhook (con token redatto se non ancora rivelato):
+- Per visualizzare un URL base del webhook (token redatto se non ancora rivelato):
 
 ```powershell
 curl "http://<IP-HB>:12050/admin/webhooks/<NOME>/info?adminSecret=<ADMIN_SECRET>"
@@ -44,14 +44,21 @@ curl "http://<IP-HB>:12050/admin/webhooks/<NOME>/info?adminSecret=<ADMIN_SECRET>
 curl -X POST "http://<IP-HB>:12050/admin/webhooks/<NOME>/regenerate?adminSecret=<ADMIN_SECRET>"
 ```
 
+UI Amministrativa (alternativa agli endpoint diretti):
+
+- Apri `http://<IP-HB>:12050/admin/ui` dalla rete locale.
+- Inserisci l'`adminSecret` se configurato e premi Login.
+- Usa il bottone "Genera URL temporaneo" su un webhook per ottenere un URL con token effimero (valido pochi minuti) senza esporre quello permanente.
+- Il token permanente viene mostrato solo se già rivelato inizialmente.
+
 Note:
 
 - Gli endpoint admin sono accessibili solo da rete locale; se `adminSecret` è impostato, è obbligatorio fornirlo (header `x-admin-secret` o query `?adminSecret=`).
 - I token non vengono scritti nei log e le query sensibili nei log vengono redatte (`token`/`adminSecret`). Usa gli endpoint admin per recuperarli e conservali in modo sicuro.
 
-## UI Config (tabs)
+## UI Config (schema)
 
-La pagina di configurazione in Homebridge è organizzata a tab: Generale, Webhooks, Email. La sezione "Email" è collassata per impostazione predefinita. Nei Webhook, se lasci il `path` vuoto, verrà creato automaticamente come `/wh/<nome-normalizzato>`.
+La pagina di configurazione usa il layout standard di Homebridge per massima compatibilità. Il `path` è obbligatorio e deve iniziare con `/wh/`. Se lo imposti manualmente, assicurati che sia univoco.
 
 ## Configurazione (Homebridge UI)
 

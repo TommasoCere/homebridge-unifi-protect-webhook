@@ -211,13 +211,4 @@ class ProtectWebhookPlatform {
 			try { cfg._imap && cfg._imap.end(); } catch (_) {}
 		}
 	}
-
-	// Cleanup on shutdown
-	async shutdown() {
-		try { this.server && this.server.close(); } catch (_) {}
-		for (const cfg of this.emailTriggers) {
-			if (cfg._keepAliveTimer) clearInterval(cfg._keepAliveTimer);
-			try { cfg._imap && cfg._imap.end(); } catch (_) {}
-		}
-	}
 }

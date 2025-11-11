@@ -23,7 +23,7 @@ Homebridge plugin that exposes local HTTP webhook endpoints and IMAP email trigg
 - Always use webhook tokens. If empty, one is generated and stored in accessory context (not printed in logs).
 - Further restrict with `allowedIps` (comma‑separated list).
 
-### Token reveal (one-time), URL info & regenerate
+### Token reveal, URL info & custom Admin UI
 
 - Set an `adminSecret` to enable admin endpoints.
 - Reveal token once (only if auto-generated and not revealed before):
@@ -32,7 +32,7 @@ Homebridge plugin that exposes local HTTP webhook endpoints and IMAP email trigg
 curl "http://<HB-IP>:12050/admin/webhooks/<NAME>/token?adminSecret=<ADMIN_SECRET>"
 ```
 
-- Get a ready-to-use webhook URL (token redacted if not yet revealed):
+- Get a base webhook URL (token redacted if not yet revealed):
 
 ```powershell
 curl "http://<HB-IP>:12050/admin/webhooks/<NAME>/info?adminSecret=<ADMIN_SECRET>"
@@ -43,6 +43,13 @@ curl "http://<HB-IP>:12050/admin/webhooks/<NAME>/info?adminSecret=<ADMIN_SECRET>
 ```powershell
 curl -X POST "http://<HB-IP>:12050/admin/webhooks/<NAME>/regenerate?adminSecret=<ADMIN_SECRET>"
 ```
+
+Admin UI (alternative to invoking endpoints manually):
+
+- Open `http://<HB-IP>:12050/admin/ui` from your LAN.
+- Enter `adminSecret` (if configured) and click Login.
+- Use "Generate temporary URL" to obtain a short‑lived URL (ephemeral token) without exposing the permanent token.
+- Permanent token is shown only if previously revealed.
 
 Notes:
 
@@ -57,7 +64,7 @@ Notes:
 - adminSecret: secret for admin token endpoints (optional but recommended).
 - webhooks: array
   - name: sensor/endpoint name.
-  - path: HTTP path (default `/wh/<name>`), supports GET & POST.
+  - path: HTTP path (must start with `/wh/`), supports GET & POST.
   - token: if empty, auto-generated; supply via header `x-webhook-token` or `?token=`.
   - debounceSeconds: minimum time between activations.
   - durationSeconds: active ON duration before reset.

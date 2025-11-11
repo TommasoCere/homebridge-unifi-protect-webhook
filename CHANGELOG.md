@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] - 2025-11-11
+
+### New: Custom Admin UI
+
+- Added a lightweight admin UI served at `/admin/ui`.
+- Login with `adminSecret` (if configured) and generate a temporary full webhook URL via button (POST), without exposing permanent tokens.
+- UI also shows current webhooks (name, path, base URL) and email triggers summary.
+
+### Documentation
+
+- Updated README (EN/IT) with custom UI instructions.
+
 ## [0.1.7] - 2025-11-11
 
 ### Features
