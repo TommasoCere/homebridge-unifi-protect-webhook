@@ -6,7 +6,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { v4: uuidv4 } = require("uuid");
-const imaps = require("imap-simple");
+const { ImapFlow } = require("imapflow");
 
 let hap; // set by Homebridge
 
@@ -236,70 +236,68 @@ class ProtectWebhookPlatform {
 		}
 	}
 
-	async _startImapMonitor(cfg, accessory) {
-		const imapConfig = {
-			imap: {
-				user: cfg.imapUser,
-				password: cfg.imapPassword,
+		async _startImapMonitor(cfg, accessory) {
+			const client = new ImapFlow({
 				host: cfg.imapHost,
 				port: cfg.imapPort || 993,
-				tls: cfg.imapTls !== false,
-				authTimeout: 10000,
-				tlsOptions: { servername: cfg.imapHost },
-			},
-		};
+				secure: cfg.imapTls !== false,
+				auth: { user: cfg.imapUser, pass: cfg.imapPassword },
+				logger: false
+			});
 
-		const connection = await imaps.connect(imapConfig);
-		await connection.openBox("INBOX");
-
-		const onNewMail = async () => {
-			try {
-				const searchCriteria = ["UNSEEN"]; // unread only
-				const fetchOptions = { bodies: ["HEADER"], markSeen: true };
-				const results = await connection.search(searchCriteria, fetchOptions);
-				for (const res of results) {
-					// extract subject
-					const headerPart = (res.parts || []).find((p) => p.which === "HEADER");
-					const subject = headerPart && headerPart.body && headerPart.body.subject ? headerPart.body.subject[0] : "";
-					if (!subject) continue;
-
-					if (this._matchSubject(subject, cfg.subjectMatch)) {
-						const now = Date.now();
-						if (cfg._debounce && now - cfg._lastTrigger < cfg._debounce) {
-							this.log.debug(`Email trigger '${cfg.name}' ignored by debounce`);
+			const processUnseen = async () => {
+				try {
+					const uids = await client.search({ seen: false }, { uid: true });
+					if (!uids || uids.length === 0) return;
+					for (const uid of uids) {
+						const msg = await client.fetchOne(uid, { envelope: true }, { uid: true });
+						const subject = msg?.envelope?.subject || "";
+						if (!subject) {
+							// still mark seen to avoid loops
+							await client.messageFlagsAdd(uid, ['\\Seen'], { uid: true });
 							continue;
 						}
-						cfg._lastTrigger = now;
-						this._triggerAccessory(cfg.name, accessory, cfg._duration);
-						this.log.info(`Email trigger '${cfg.name}' fired (subject matched: "${subject}")`);
+						if (this._matchSubject(subject, cfg.subjectMatch)) {
+							const now = Date.now();
+							if (cfg._debounce && now - cfg._lastTrigger < cfg._debounce) {
+								this.log.debug(`Email trigger '${cfg.name}' ignored by debounce`);
+							} else {
+								cfg._lastTrigger = now;
+								this._triggerAccessory(cfg.name, accessory, cfg._duration);
+								this.log.info(`Email trigger '${cfg.name}' fired (subject matched: "${subject}")`);
+							}
+						}
+						// mark seen in any case to avoid re-processing
+						try { await client.messageFlagsAdd(uid, ['\\Seen'], { uid: true }); } catch (_) {}
 					}
+				} catch (err) {
+					this.log.error(`Error processing new mail for '${cfg.name}':`, err.message || err);
 				}
-			} catch (err) {
-				this.log.error(`Error processing new mail for '${cfg.name}':`, err.message || err);
-			}
-		};
+			};
 
-		// Initial fetch for unseen
-		await onNewMail();
+			const connectAndListen = async () => {
+				await client.connect();
+				await client.mailboxOpen('INBOX');
+				await processUnseen();
+				client.on('exists', processUnseen);
+				client.on('expunge', () => {});
+			};
 
-		// IDLE notifications
-		connection.on("mail", onNewMail);
-		connection.on("update", onNewMail);
+			client.on('error', (err) => {
+				this.log.warn(`IMAP error for '${cfg.name}':`, err?.message || err);
+			});
 
-		// Keepalive
-		const keepAliveMs = 5 * 60 * 1000;
-		cfg._keepAliveTimer = setInterval(async () => {
 			try {
-				await connection.openBox("INBOX", false);
+				await connectAndListen();
 			} catch (e) {
-				this.log.warn(`IMAP keepalive failed for '${cfg.name}', reconnecting:`, e.message || e);
-				try { connection.end(); } catch (_) {}
-				try { await this._startImapMonitor(cfg, accessory); } catch (err) { this.log.error("IMAP reconnect failed:", err.message || err); }
+				this.log.error(`Failed to start email trigger '${cfg.name}':`, e?.message || e);
+				// retry later
+				setTimeout(() => this._startImapMonitor(cfg, accessory).catch(err => this.log.error('IMAP reconnect failed', err)), 5000);
+				return;
 			}
-		}, keepAliveMs);
 
-		cfg._imap = connection;
-	}
+			cfg._imap = client;
+		}
 
 	_getOrCreateAccessory(key, displayName) {
 		const uuid = this.api.hap.uuid.generate(`${PLATFORM_NAME}:${key}`);
