@@ -54,7 +54,6 @@
         "items": {
           "type": "object",
           "title": "Email trigger",
-          "collapsed": true,
           "properties": {
             "name": { "type": "string", "title": "Name" },
             "imapHost": { "type": "string", "title": "IMAP Host (gmail: imap.gmail.com)" },
@@ -74,22 +73,8 @@
   }
   ,
   "layout": [
-    {
-      "type": "tabs",
-      "items": [
-        {
-          "title": "Generale",
-          "items": ["name", "adminSecret", "bindAddress", "port", "enforceLocalOnly"]
-        },
-        {
-          "title": "Webhooks",
-          "items": ["webhooks"]
-        },
-        {
-          "title": "Email",
-          "items": ["emailTriggers"]
-        }
-      ]
-    }
+    { "type": "fieldset", "title": "Generale", "items": ["name", "adminSecret", "bindAddress", "port", "enforceLocalOnly"] },
+    { "type": "fieldset", "title": "Webhooks", "items": ["webhooks"] },
+    { "type": "fieldset", "title": "Email", "items": ["emailTriggers"] }
   ]
 }
