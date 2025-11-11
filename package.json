@@ -1,6 +1,6 @@
 {
 	"name": "homebridge-unifi-protect-webhook",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Homebridge plugin: expose local webhook endpoints and email triggers as HomeKit Motion sensors for UniFi Protect/Reolink integration.",
 	"main": "src/index.js",
 	"keywords": [
@@ -23,11 +23,22 @@
 	},
 	"repository": {
 		"type": "git",
-			"url": "git+https://github.com/tommasocere/homebridge-unifi-protect-webhook.git"
+			"url": "git+https://github.com/TommasoCere/homebridge-unifi-protect-webhook.git"
 	},
 		"scripts": {
 			"audit": "npm audit --omit=dev"
 		},
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"src/",
+		"config.schema.json",
+		"README.md",
+		"README.it.md",
+		"CHANGELOG.md",
+		"LICENSE"
+	],
 		"dependencies": {
 			"body-parser": "2.2.0",
 			"express": "5.1.0",
