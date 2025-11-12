@@ -19,13 +19,20 @@ Plugin per Homebridge che espone endpoint Webhook locali e trigger via Email IMA
 
 ### Dove trovare la UI Amministrativa (integrata)
 
-- Apri Homebridge UI X e clicca su questo plugin.
-- Nella pagina del plugin vedrai il form di configurazione (Webhooks / Email triggers) e un pannello/sezione Admin con la UI avanzata.
-- La UI Admin mostra i tuoi webhooks e i trigger email e consente di:
-  - Vedere info sicure dell’URL del webhook (token redatto se non è la prima rivelazione).
-  - Generare URL temporanei con token a vita breve.
-  - Rigenerare il token permanente (prima rivelazione).
-  - Potrebbe essere richiesto `adminSecret` se configurato.
+Se vedi solo il form di configurazione e non il pannello Admin:
+
+1. Assicurati di usare Homebridge UI X >= 1.8.0 (o Homebridge 2.0) con Node >= 20.
+2. Aggiorna il plugin alla v0.2.5 o superiore (i metadata `engines` abilitano correttamente l’iniezione UI).
+3. Esegui un hard‑refresh del browser (Ctrl+F5) o svuota la cache.
+4. Se ancora non compare, controlla nei log di Homebridge in avvio: l’UI integrata viene caricata automaticamente; eventuali errori in `homebridge-ui/server.js` impediscono la visualizzazione del pannello.
+
+Una volta visibile, il pannello Admin consente di:
+
+- Visualizzare info sicure del webhook (token redatto fino alla prima rivelazione se auto-generato).
+- Generare URL temporanei con token a vita breve.
+- Rigenerare il token permanente (con prima rivelazione nel response).
+- Rivelare una sola volta un token auto‑generato.
+- Usare Ping/Aggiorna per una diagnostica rapida.
 
 ## Sicurezza
 
@@ -56,14 +63,14 @@ curl -X POST "http://<IP-HB>:12050/admin/webhooks/<NOME>/regenerate?adminSecret=
 
 UI integrata (dentro Homebridge Config UI):
 
-- Apri la scheda del plugin in Homebridge UI.
-- Troverai una tab "Admin" con Webhooks ed Email triggers.
+- Apri la pagina del plugin: in alto trovi la configurazione e sotto il pannello Admin.
 - Usa "Genera URL temporaneo" per ottenere un URL a vita breve (token effimero) senza esporre il token permanente.
-- Il token permanente viene mostrato solo se era stato già rivelato in precedenza.
+- Con "Rigenera token" ottieni un nuovo token (con prima rivelazione inclusa nella risposta).
 
 Nota:
 
-- Dalla versione v0.2.0 la vecchia pagina esterna `/admin/ui` è stata rimossa. Usa la pagina del plugin dentro Homebridge UI.
+- Dalla v0.2.0 la vecchia pagina esterna `/admin/ui` è stata rimossa. Usa la pagina del plugin dentro Homebridge UI.
+- Dalla v0.2.5 il campo `engines` richiede versioni moderne per essere contrassegnato come pronto per Homebridge 2.0.
 
 Note:
 

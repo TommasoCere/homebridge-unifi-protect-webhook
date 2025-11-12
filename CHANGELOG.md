@@ -2,7 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.0] - 2025-11-11
+## [0.2.5] - 2025-11-12
+
+### Compatibility
+
+- Aggiornati requisiti `engines`: Node `>=20`, Homebridge `>=1.8.0 || ^2.0.0` per allinearsi alla readiness di Homebridge 2.0.
+- Nessun cambiamento funzionale, solo metadata per corretta rilevazione UI e flag "2.0 Ready".
+
+## [0.2.4] - 2025-11-11
+
+### Diagnostics
+
+- Aggiunti pulsanti "Aggiorna stato" e "Ping" alla UI integrata per verificare la reattività del bridge.
+- Migliorati messaggi di stato (barra diagnostica in alto) e gestione errori.
+
+## [0.2.3] - 2025-11-11
+
+### Fix Publish
+
+- Forzata nuova versione dopo problemi di propagazione su npm (403/404 per 0.2.2). Nessuna modifica di codice.
+
+## [0.2.2] - 2025-11-11
+
+### Internals
+
+- Rinominate le route di stato da `/admin/ui/state` a `/admin/state` coerentemente con la rimozione UI esterna.
+- Pulizia riferimenti obsoleti nei README.
+
+## [0.2.1] - 2025-11-11
 
 ### UI (Homebridge UI X)
 
@@ -18,7 +45,7 @@ All notable changes to this project will be documented in this file.
 - Rimossa la vecchia directory `src/ui/` dal progetto (era la UI esterna).
 
  
-## [0.2.1] - 2025-11-11
+## [0.2.0] - 2025-11-11
 
 ### Fix
 
