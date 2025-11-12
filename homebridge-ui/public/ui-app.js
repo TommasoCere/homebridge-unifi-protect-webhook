@@ -129,14 +129,28 @@ async function onTableClick(ev) {
   const name = btn.getAttribute('data-name');
   const action = btn.getAttribute('data-action');
   try {
+    btn.disabled = true;
+    btn.classList.add('working');
+    if (action === 'reveal' || action === 'regenerate' || action === 'delete-wh' || action === 'delete-em') {
+      window.homebridge.toast.info(({
+        'reveal': `Richiedo URL per '${name}'...`,
+        'regenerate': `Rigenero token per '${name}'...`,
+        'delete-wh': `Elimino webhook '${name}'...`,
+        'delete-em': `Elimino trigger email '${name}'...`
+      })[action]);
+    }
     if (action === 'reveal') {
       const data = await request('/token', { name });
+      if (data?.error) throw new Error(data.error);
       showOutput(`URL (prima e unica rivelazione):\n${escapeHtml(data.url)}`);
+      window.homebridge.toast.success(`URL rivelato per '${name}'.`);
       await loadState();
     } else if (action === 'regenerate') {
       if (!confirm(`Rigenerare il token permanente per '${name}'?`)) return;
       const data = await request('/regenerate', { name });
+      if (data?.error) throw new Error(data.error);
       showOutput(`Nuovo token permanente (prima rivelazione):\n${escapeHtml(data.url)}`);
+      window.homebridge.toast.success(`Token rigenerato per '${name}'.`);
       await loadState();
     } else if (action === 'delete-wh') {
       if (!confirm(`Eliminare il webhook '${name}' dalla configurazione?`)) return;
@@ -157,6 +171,8 @@ async function onTableClick(ev) {
     }
   } catch (e) {
     window.homebridge.toast.error('Errore: ' + (e?.message || e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.classList.remove('working'); }
   }
 }
 

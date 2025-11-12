@@ -13,6 +13,7 @@
 #hb-protect-ui button.action.secondary { background:#457b9d; border-color:#457b9d; }
 #hb-protect-ui button.action.warn { background:#e76f51; border-color:#e76f51; }
 #hb-protect-ui button.action:hover { filter:brightness(1.07); }
+#hb-protect-ui button.action.working { opacity:0.6; cursor:progress; }
 #hb-protect-ui #ephemeralContent {
 	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 	word-break: break-all;
