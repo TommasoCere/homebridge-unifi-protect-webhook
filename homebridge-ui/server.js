@@ -34,7 +34,7 @@ class UiServer extends PluginUiServer {
   }
 
   async handleState() {
-    const url = `${this.getBaseUrl()}/admin/ui/state`;
+    const url = `${this.getBaseUrl()}/admin/state`;
     const res = await fetch(url, { headers: this.getHeaders() });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.json();

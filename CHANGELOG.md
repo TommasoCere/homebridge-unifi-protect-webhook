@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 - La UI amministrativa è ora interamente integrata nella pagina del plugin in Homebridge UI X.
 - Rimossa la vecchia pagina esterna servita su `/admin/ui` (non più disponibile).
 - Il bridge UI (`homebridge-ui/server.js`) inoltra in locale verso gli endpoint admin sicuri:
-  - `/admin/ui/state`, `/admin/webhooks/:name/info`, `/admin/webhooks/:name/ephemeral`, `/admin/webhooks/:name/regenerate`.
+  - `/admin/state`, `/admin/webhooks/:name/info`, `/admin/webhooks/:name/ephemeral`, `/admin/webhooks/:name/regenerate`.
 - Niente token permanenti nei log; generazione URL temporanei con token effimeri.
 
 ### Packaging / Metadata

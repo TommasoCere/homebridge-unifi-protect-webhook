@@ -13,7 +13,7 @@
       "adminSecret": {
         "type": "string",
         "title": "Admin Secret (opzionale)",
-        "description": "Segreto per endpoint amministrativi (reveal/regenerate token e info URL). Non viene mostrato nei log. Consigliato impostarlo."
+        "description": "Segreto per endpoint amministrativi (reveal/regenerate token e info URL). Non viene mostrato nei log. Consigliato impostarlo. La gestione operativa avviene dalla UI Admin integrata nella pagina del plugin."
       },
       "bindAddress": {
         "type": "string",
@@ -34,10 +34,9 @@
       },
       "webhooks": {
         "type": "array",
-        "title": "Webhooks",
+        "description": "Puoi definire manualmente i webhook qui, ma per la gestione operativa (URL temporanei, rigenerazione token, prima rivelazione) usa il pannello Admin integrato nella pagina del plugin.",
         "items": {
           "type": "object",
-          "title": "Webhook",
           "properties": {
             "name": { "type": "string", "title": "Name" },
             "path": { "type": "string", "title": "Path (obbligatorio)", "description": "Deve iniziare con /wh/ (es. /wh/porta-ingresso)", "pattern": "^/wh/.*" },
@@ -51,10 +50,9 @@
       },
       "emailTriggers": {
         "type": "array",
-        "title": "Email triggers",
+        "description": "Configurali qui solo se necessario. Il pannello Admin mostra un riepilogo e consente l'uso operazionale in sicurezza.",
         "items": {
           "type": "object",
-          "title": "Email trigger",
           "properties": {
             "name": { "type": "string", "title": "Name" },
             "imapHost": { "type": "string", "title": "IMAP Host (gmail: imap.gmail.com)" },
@@ -71,5 +69,37 @@
       }
     },
     "required": []
-  }
+  },
+  "layout": [
+    {
+      "type": "header",
+      "title": "UI Amministrativa Integrata",
+      "description": "La gestione operativa (URL temporanei, rigenerazione token, prima rivelazione) avviene nel pannello Admin integrato nella pagina del plugin in Homebridge UI. Questa sezione serve per la configurazione di base."
+    },
+    {
+      "type": "section",
+      "title": "Generale",
+      "items": [
+        "name",
+        "adminSecret",
+        "bindAddress",
+        "port",
+        "enforceLocalOnly"
+      ]
+    },
+    {
+      "type": "section",
+      "title": "Webhooks (configurazione manuale)",
+      "expandable": true,
+      "expanded": false,
+      "items": ["webhooks"]
+    },
+    {
+      "type": "section",
+      "title": "Email triggers (configurazione manuale)",
+      "expandable": true,
+      "expanded": false,
+      "items": ["emailTriggers"]
+    }
+  ]
 }
