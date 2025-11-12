@@ -7,20 +7,21 @@
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <header>
+  <div id="hb-protect-ui">
+  <header class="hb-ui-header">
     <h1>Webhook & Email - Admin (Integrato)</h1>
   </header>
-  <main>
-    <section>
+  <main class="hb-ui-main">
+    <section class="hb-ui-section">
       <div style="display:flex; gap:.5rem; align-items:center;">
         <button id="btnRefresh" class="action">Aggiorna stato</button>
         <button id="btnPing" class="action secondary">Ping</button>
         <span id="diagMsg" class="status"></span>
       </div>
     </section>
-    <section>
+    <section class="hb-ui-section">
       <h2>Webhooks</h2>
-      <table id="webhooksTable">
+      <table id="webhooksTable" class="hb-ui-table">
         <thead>
           <tr>
             <th>Nome</th>
@@ -34,9 +35,9 @@
       </table>
     </section>
 
-    <section>
+    <section class="hb-ui-section">
       <h2>Email Triggers</h2>
-      <table id="emailTable">
+      <table id="emailTable" class="hb-ui-table">
         <thead>
           <tr>
             <th>Nome</th>
@@ -49,14 +50,15 @@
       </table>
     </section>
 
-    <section id="ephemeralOutput" class="hidden">
+    <section id="ephemeralOutput" class="hb-ui-section hidden">
       <h2>Output</h2>
       <pre id="ephemeralContent"></pre>
     </section>
   </main>
-  <footer>
+  <footer class="hb-ui-footer">
     <small>UI integrata in Homebridge - Non espone segreti nei log</small>
   </footer>
+  </div>
   <script src="./ui-app.js" type="module"></script>
 </body>
 </html>
