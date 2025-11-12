@@ -12,7 +12,20 @@ async function request(path, body) {
 async function loadPluginConfig() {
   try {
     const cfgArr = await window.homebridge.getPluginConfig();
-    pluginConfig = (Array.isArray(cfgArr) && cfgArr[0]) ? cfgArr[0] : {};
+    const hasArr = Array.isArray(cfgArr) && cfgArr.length > 0 && cfgArr[0];
+    if (hasArr) {
+      pluginConfig = cfgArr[0];
+    } else {
+      // Inizializza una configurazione di base per permettere la creazione del primo Webhook
+      pluginConfig = {
+        platform: 'ProtectWebhookPlatform',
+        name: 'UniFi Protect Webhook',
+        port: 12050,
+        enforceLocalOnly: true,
+        webhooks: [],
+        emailTriggers: []
+      };
+    }
   } catch (e) {
     console.error('Impossibile recuperare la configurazione del plugin:', e);
     pluginConfig = {};
@@ -45,13 +58,9 @@ function isConfigured() {
 
 async function loadState() {
   try {
-    if (!isConfigured()) {
-      setDiagMsg('Plugin non configurato: salva la configurazione e riavvia Homebridge.');
-      return;
-    }
     const data = await request('/state');
     if (data && data.notReady) {
-      setDiagMsg('Server non ancora pronto, ritento...');
+      setDiagMsg('Server non ancora pronto (prima configurazione o riavvio), attendo...');
       setTimeout(loadState, 800);
       return;
     }
@@ -177,8 +186,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   const whForm = document.getElementById('whAddForm');
   whForm && whForm.addEventListener('submit', async (ev) => {
     ev.preventDefault();
+    // Se la piattaforma non è ancora salvata, inizializziamo la base automaticamente
     if (!isConfigured()) {
-      return window.homebridge.toast.error('Plugin non configurato. Premi Salva nella configurazione di base e riapri questa pagina.');
+      pluginConfig = {
+        platform: 'ProtectWebhookPlatform',
+        name: pluginConfig?.name || 'UniFi Protect Webhook',
+        port: pluginConfig?.port || 12050,
+        enforceLocalOnly: pluginConfig?.enforceLocalOnly !== false,
+        webhooks: Array.isArray(pluginConfig?.webhooks) ? pluginConfig.webhooks : [],
+        emailTriggers: Array.isArray(pluginConfig?.emailTriggers) ? pluginConfig.emailTriggers : []
+      };
     }
     const rawName = document.getElementById('whName').value.trim();
     if (!rawName) {
@@ -197,9 +214,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     list.push({ name, path, debounceSeconds, durationSeconds });
     pluginConfig.webhooks = list;
-  await persistConfig({ save: true });
-  // Attendi un attimo che Homebridge applichi la nuova configurazione
-  setTimeout(loadState, 1200);
+    await persistConfig({ save: true });
+    // Attendi che Homebridge applichi la nuova configurazione e avvii il server
+    setTimeout(loadState, 1500);
     whForm.reset();
   window.homebridge.toast.success('Webhook creato e salvato. Dopo l’aggiornamento apparirà in tabella.');
   });

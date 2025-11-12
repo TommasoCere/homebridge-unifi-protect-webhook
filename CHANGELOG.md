@@ -8,6 +8,12 @@ All notable changes to this project will be documented in this file.
 - Rimossi i pulsanti "Aggiorna" per sezione (flusso più lineare).
 
 
+## [0.2.22] - 2025-11-12
+
+- Prima configurazione semplificata: se non esiste ancora una voce di config, la UI inizializza una configurazione base automaticamente quando crei il primo Webhook.
+- Messaggi più chiari durante l'attesa dell'avvio del server alla prima configurazione.
+- Schema aggiornato: nome di default migliorato e descrizioni più guida.
+
 - Semplificazione Webhooks: form ridotto a solo Nome (senza spazi); path auto `/wh/<nome minuscolo>`, debounce/duration default non modificabili.
 - Azioni Webhook ridotte: rimosse Info/Ephemeral; aggiunto pulsante "Rivela URL" (una sola volta) e "Rigenera" (prima rivelazione inclusa) + Elimina.
 - UI server: endpoint /token integrato; rimossi i proxy /info e /ephemeral per UX minimale.

@@ -9,7 +9,8 @@
       "name": {
         "type": "string",
         "title": "Name",
-        "default": "ProtectWebhookPlatform"
+        "default": "UniFi Protect Webhook",
+        "description": "Nome visualizzato nella UI. Lascia il default se non sai cosa mettere."
       },
       "adminSecret": {
         "type": "string",
@@ -25,7 +26,8 @@
       "port": {
         "type": "number",
         "title": "Port",
-        "default": 12050
+        "default": 12050,
+        "description": "Porta HTTP del server webhook. Cambiala solo se confligge con altri servizi."
       },
       "enforceLocalOnly": {
         "type": "boolean",
@@ -35,7 +37,7 @@
       },
       "webhooks": {
         "type": "array",
-        "description": "Puoi definire manualmente i webhook qui, ma per la gestione operativa (URL temporanei, rigenerazione token, prima rivelazione) usa il pannello Admin integrato nella pagina del plugin.",
+        "description": "Definizione manuale avanzata. Per creare velocemente un webhook usa il form nella UI Admin in basso (inserisci solo Nome, path e token auto).",
         "items": {
           "type": "object",
           "properties": {
@@ -75,7 +77,7 @@
     {
       "type": "header",
       "title": "UI Amministrativa Integrata",
-      "description": "La gestione operativa (URL temporanei, rigenerazione token, prima rivelazione) avviene nel pannello Admin integrato nella pagina del plugin in Homebridge UI. Questa sezione serve per la configurazione di base."
+      "description": "Per creare rapidamente un Webhook inserisci solo il Nome nel form in basso. L'URL completo viene mostrato una sola volta (Rivela URL). Per un nuovo URL usa Rigenera."
     },
     {
       "type": "header",
