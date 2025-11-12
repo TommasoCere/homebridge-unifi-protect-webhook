@@ -78,6 +78,11 @@
       "description": "La gestione operativa (URL temporanei, rigenerazione token, prima rivelazione) avviene nel pannello Admin integrato nella pagina del plugin in Homebridge UI. Questa sezione serve per la configurazione di base."
     },
     {
+      "type": "header",
+      "title": "Suggerimento: esegui come Child Bridge",
+      "description": "Per avere il pulsante 'Plugin Logs' e isolare i log/processo, abilita 'Run as Child Bridge' dalle impostazioni del plugin in Homebridge UI e riavvia. Questa opzione si imposta dalla UI, non dal JSON di configurazione del plugin."
+    },
+    {
       "type": "section",
       "title": "Generale",
       "items": [

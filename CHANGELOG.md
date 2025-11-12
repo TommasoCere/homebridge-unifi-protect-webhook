@@ -3,25 +3,25 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.13] - 2025-11-12
+## [0.2.18] - 2025-11-12
 
-- La UI passa la configurazione corrente al server UI evitando errori `getPluginConfig` su ambienti recenti.
-- Il server UI usa un fallback sugli env `HOMEBRIDGE_PLUGIN_CONFIG` per gestire sessioni senza payload.
+- UI: messaggio chiaro se il plugin non è ancora configurato (platform mancante) prima di tentare stato/ping.
+- Corretto schema rimuovendo chiave non supportata `enableChildBridge` (era fuorviante).
 
-## [0.2.14] - 2025-11-12
+## [0.2.16] - 2025-11-12
 
-- UI server: aggiunto retry con backoff su `ECONNREFUSED` e 502/503/504 durante l'avvio del plugin.
-- UI client: gestisce `notReady` e ritenta automaticamente mostrando un messaggio in italiano.
+- UI server: aggiunto endpoint `/ping` con misurazione latenza e gestione `notReady`.
+- UI client: il pulsante Ping usa l'endpoint dedicato e mostra messaggi chiari.
 
 ## [0.2.15] - 2025-11-12
 
 - UI: CSS isolato sotto `#hb-protect-ui` per evitare interferenze con la pagina Impostazioni.
 - UI: supporto tema scuro (dark) per evitare testo bianco su fondo bianco.
 
-## [0.2.16] - 2025-11-12
+## [0.2.14] - 2025-11-12
 
-- UI server: aggiunto endpoint `/ping` con misurazione latenza e gestione `notReady`.
-- UI client: il pulsante Ping usa l'endpoint dedicato e mostra messaggi chiari.
+- UI server: aggiunto retry con backoff su `ECONNREFUSED` e 502/503/504 durante l'avvio del plugin.
+- UI client: gestisce `notReady` e ritenta automaticamente mostrando un messaggio in italiano.
 
 ## [0.2.12] - 2025-11-12
 

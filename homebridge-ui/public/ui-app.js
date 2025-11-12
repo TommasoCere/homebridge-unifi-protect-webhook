@@ -19,8 +19,17 @@ async function loadPluginConfig() {
   }
 }
 
+function isConfigured() {
+  // Homebridge saves platform entries as objects with `platform` equal to the alias
+  return pluginConfig && typeof pluginConfig === 'object' && pluginConfig.platform === 'ProtectWebhookPlatform';
+}
+
 async function loadState() {
   try {
+    if (!isConfigured()) {
+      setDiagMsg('Plugin non configurato: salva la configurazione e riavvia Homebridge.');
+      return;
+    }
     const data = await request('/state');
     if (data && data.notReady) {
       setDiagMsg('Server non ancora pronto, ritento...');
@@ -110,6 +119,10 @@ function setDiagMsg(msg) {
 async function ping() {
   const t0 = performance.now();
   try {
+    if (!isConfigured()) {
+      setDiagMsg('Plugin non configurato: imposta e riavvia.');
+      return;
+    }
     const res = await request('/ping');
     if (res && res.notReady) {
       setDiagMsg('Server non ancora pronto (ping).');
