@@ -4,6 +4,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2025-11-13
+
+- Fix: corretto `config.schema.json` (JSON non valido) che causava l'errore “Failed to load plugin config schema” in Homebridge UI. Le nuove opzioni `publicBaseUrl`/`trustProxyHeaders` ora sono nella sezione corretta.
+
 ## [0.3.0] - 2025-11-12
 
 - Breaking (UI): la UI ora è "draft-only". Le azioni aggiornano solo la bozza di configurazione in Homebridge; è necessario premere "Salva" per rendere persistenti i cambiamenti.
