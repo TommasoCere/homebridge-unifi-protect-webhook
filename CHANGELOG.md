@@ -4,6 +4,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.2.20] - 2025-11-12
+- Auto-salvataggio: la creazione di un Webhook salva subito la configurazione e aggiorna lo stato automaticamente.
+- Rimossi i pulsanti "Aggiorna" per sezione (flusso più lineare).
+
 
 - Semplificazione Webhooks: form ridotto a solo Nome (senza spazi); path auto `/wh/<nome minuscolo>`, debounce/duration default non modificabili.
 - Azioni Webhook ridotte: rimosse Info/Ephemeral; aggiunto pulsante "Rivela URL" (una sola volta) e "Rigenera" (prima rivelazione inclusa) + Elimina.
@@ -48,17 +51,17 @@ All notable changes to this project will be documented in this file.
 - Il server UI ora espone nuovamente gli endpoint `/state`, `/info`, `/ephemeral` e `/regenerate`, proxy verso il backend Homebridge con header di sicurezza corretti.
 - Aggiunto logging leggero per tracciare le richieste della UI e facilitare la diagnostica dei log.
 
-## [0.2.11] - 2025-01-12
+## [0.2.20] - 2025-11-12
 
-### Added
+- Semplificazione Webhooks: form ridotto a solo Nome (senza spazi); path auto `/wh/<nome minuscolo>`, debounce/duration default non modificabili.
+- Azioni Webhook ridotte: rimosse Info/Ephemeral; aggiunto pulsante "Rivela URL" (una sola volta) e "Rigenera" (prima rivelazione inclusa) + Elimina.
+- UI server: endpoint /token integrato; rimossi i proxy /info e /ephemeral per UX minimale.
+- Rimossi bottoni globali "Aggiorna stato" e "Ping"; resta refresh sezione Webhooks.
+- Messaggi toast per guida (creazione, rivelazione, rigenerazione).
+- Bump versione a 0.2.20.
 
-- Abilitata la flag `customUi` nello schema per abilitare la UI personalizzata di Homebridge.
-- Creato scaffolding dell'interfaccia in `homebridge-ui/public/index.html` con Bootstrap 5 e API `window.homebridge`.
-- Implementato server UI minimale in `homebridge-ui/server.js` con endpoint dimostrativo `/test-webhook-url` e corretta chiamata a `this.ready()`.
-
-### Changed
-
-- Sostituito il layout UI precedente con una base leggera pronta per ulteriori personalizzazioni.
+- Auto-salvataggio: la creazione di un Webhook salva subito la configurazione e aggiorna lo stato automaticamente.
+- Rimossi i pulsanti "Aggiorna" per sezione (flusso più lineare).
 
 ## [0.2.10] - 2025-01-12
 

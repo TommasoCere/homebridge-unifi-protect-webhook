@@ -22,7 +22,8 @@ async function loadPluginConfig() {
 async function persistConfig({ save = false } = {}) {
   // Update current config in Homebridge UI. Optionally save (may close the settings panel depending on UI context).
   try {
-    const arr = Array.isArray(await window.homebridge.getPluginConfig()) ? await window.homebridge.getPluginConfig() : [];
+  const cfgNow = await window.homebridge.getPluginConfig();
+  const arr = Array.isArray(cfgNow) ? cfgNow : [];
     const current = (arr[0] && typeof arr[0] === 'object') ? arr[0] : {};
     // Merge minimal to retain unexpected fields
     const merged = { ...current, ...pluginConfig };
@@ -30,7 +31,7 @@ async function persistConfig({ save = false } = {}) {
     if (save && typeof window.homebridge.savePluginConfig === 'function') {
       await window.homebridge.savePluginConfig();
     }
-    window.homebridge.toast.success('Configurazione aggiornata. Ricorda di premere Salva per confermare.');
+    window.homebridge.toast.success(save ? 'Configurazione salvata.' : 'Configurazione aggiornata.');
   } catch (e) {
     window.homebridge.toast.error('Errore nel salvataggio configurazione: ' + (e?.message || e));
     throw e;
@@ -170,18 +171,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.querySelector('#webhooksTable').addEventListener('click', onTableClick);
   // Rimosso refresh/ping globali: ora solo refresh sezioni
 
-  // Per-sezione refresh buttons
-  const btnRefreshWh = document.getElementById('btnRefreshWh');
-  const btnRefreshEm = document.getElementById('btnRefreshEm');
-  btnRefreshWh && btnRefreshWh.addEventListener('click', () => loadState());
-  btnRefreshEm && btnRefreshEm.addEventListener('click', () => loadState());
+  // Refresh manuale rimosso
 
   // Add Webhook
   const whForm = document.getElementById('whAddForm');
   whForm && whForm.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     if (!isConfigured()) {
-      return window.homebridge.toast.error('Plugin non configurato. Salva la configurazione di base prima.');
+      return window.homebridge.toast.error('Plugin non configurato. Premi Salva nella configurazione di base e riapri questa pagina.');
     }
     const rawName = document.getElementById('whName').value.trim();
     if (!rawName) {
@@ -200,10 +197,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     list.push({ name, path, debounceSeconds, durationSeconds });
     pluginConfig.webhooks = list;
-    await persistConfig({ save: false });
-    await loadState();
+  await persistConfig({ save: true });
+  // Attendi un attimo che Homebridge applichi la nuova configurazione
+  setTimeout(loadState, 1200);
     whForm.reset();
-    window.homebridge.toast.success('Webhook creato. Ora rivela il token una sola volta con Info / Regenera.');
+  window.homebridge.toast.success('Webhook creato e salvato. Dopo l’aggiornamento apparirà in tabella.');
   });
 
   // Add Email trigger
