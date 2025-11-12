@@ -1,46 +1,62 @@
-<div class="container mt-3">
-  <h4><i class="bi bi-shield-lock-fill"></i> Impostazioni UniFi Protect Webhook</h4>
-  <p>Gestisci la configurazione per il plugin webhook.</p>
-  
-  <div class="card">
-    <div class="card-body">
-      <h5 class="card-title">Configurazione Attuale</h5>
-      <p class="card-text">Dati di configurazione caricati:</p>
-      <pre id="config-display" style="max-height: 200px; overflow-y: auto;"></pre>
-      
-      <button class="btn btn-primary" id="save-button" disabled>Salva Modifiche</button>
-    </div>
-  </div>
-</div>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Protect Webhook - Admin</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Webhook & Email - Admin (Integrato)</h1>
+  </header>
+  <main>
+    <section>
+      <div style="display:flex; gap:.5rem; align-items:center;">
+        <button id="btnRefresh" class="action">Aggiorna stato</button>
+        <button id="btnPing" class="action secondary">Ping</button>
+        <span id="diagMsg" class="status"></span>
+      </div>
+    </section>
+    <section>
+      <h2>Webhooks</h2>
+      <table id="webhooksTable">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Percorso</th>
+            <th>URL Base</th>
+            <th>Token Permanente</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
 
-<script>
-(async () => {
-  try {
-    if (!window.homebridge) {
-      console.error('API Homebridge non trovata!');
-      return;
-    }
+    <section>
+      <h2>Email Triggers</h2>
+      <table id="emailTable">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Host IMAP</th>
+            <th>Debounce (s)</th>
+            <th>Durata Evento (s)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
 
-    const config = await window.homebridge.getPluginConfig();
-    const configDisplay = document.getElementById('config-display');
-    
-    if (config && config.length > 0) {
-      configDisplay.textContent = JSON.stringify(config, null, 2);
-    } else {
-      configDisplay.textContent = 'Nessuna configurazione trovata.';
-    }
-
-    // const saveButton = document.getElementById('save-button');
-    // saveButton.disabled = false;
-    // saveButton.onclick = async () => {
-    //   const newConfig = { ...config[0], nuovaChiave: 'valore' };
-    //   await window.homebridge.updatePluginConfig([newConfig]);
-    //   await window.homebridge.closeSettings();
-    // };
-
-  } catch (e) {
-    console.error('Errore durante il caricamento della UI personalizzata:', e);
-    document.getElementById('config-display').textContent = `Errore: ${e.message}`;
-  }
-})();
-</script>
+    <section id="ephemeralOutput" class="hidden">
+      <h2>Output</h2>
+      <pre id="ephemeralContent"></pre>
+    </section>
+  </main>
+  <footer>
+    <small>UI integrata in Homebridge - Non espone segreti nei log</small>
+  </footer>
+  <script src="./ui-app.js" type="module"></script>
+</body>
+</html>

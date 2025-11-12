@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.12] - 2025-11-12
+
+### Fixed (UI)
+
+- Ripristinata la UI amministrativa completa con tabelle e azioni per webhooks ed email trigger.
+- Il server UI ora espone nuovamente gli endpoint `/state`, `/info`, `/ephemeral` e `/regenerate`, proxy verso il backend Homebridge con header di sicurezza corretti.
+- Aggiunto logging leggero per tracciare le richieste della UI e facilitare la diagnostica dei log.
+
 ## [0.2.11] - 2025-01-12
 
 ### Added
