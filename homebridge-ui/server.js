@@ -15,6 +15,7 @@ class PluginUiServer extends HomebridgePluginUiServer {
 
 		uiLog("Registering request handlers");
 		this.onRequest("/state", this.handleState.bind(this));
+		this.onRequest("/ping", this.handlePing.bind(this));
 		this.onRequest("/info", this.handleInfo.bind(this));
 		this.onRequest("/ephemeral", this.handleEphemeral.bind(this));
 		this.onRequest("/regenerate", this.handleRegenerate.bind(this));
@@ -134,6 +135,17 @@ class PluginUiServer extends HomebridgePluginUiServer {
 		uiLog(`handleRegenerate for ${name}`);
 		const url = `${this._getBaseUrl(config)}/admin/webhooks/${encodeURIComponent(name)}/regenerate`;
 		return await this._fetchJson(config, url, { method: "POST" });
+	}
+
+	async handlePing(payload = {}) {
+		const t0 = Date.now();
+		const config = this._resolveConfig(payload);
+		const url = `${this._getBaseUrl(config)}/admin/state`;
+		const resp = await this._fetchJson(config, url);
+		if (resp && resp.notReady) {
+			return { ok: false, notReady: true };
+		}
+		return { ok: true, ms: Date.now() - t0 };
 	}
 
 	async handleTestRequest(payload = {}) {

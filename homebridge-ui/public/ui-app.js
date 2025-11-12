@@ -110,9 +110,12 @@ function setDiagMsg(msg) {
 async function ping() {
   const t0 = performance.now();
   try {
-    // semplice richiesta di stato come "ping" logico
-    await request('/state');
-    const dt = Math.round(performance.now() - t0);
+    const res = await request('/ping');
+    if (res && res.notReady) {
+      setDiagMsg('Server non ancora pronto (ping).');
+      return;
+    }
+    const dt = res?.ms ?? Math.round(performance.now() - t0);
     setDiagMsg(`Ping ok (${dt}ms)`);
   } catch (e) {
     setDiagMsg('Ping fallito');
