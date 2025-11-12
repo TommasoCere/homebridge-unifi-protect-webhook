@@ -41,10 +41,23 @@ async function persistConfig({ save = false } = {}) {
     // Merge minimal to retain unexpected fields
     const merged = { ...current, ...pluginConfig };
     await window.homebridge.updatePluginConfig([merged]);
-    if (save && typeof window.homebridge.savePluginConfig === 'function') {
-      await window.homebridge.savePluginConfig();
+    const saveAvailable = typeof window.homebridge.savePluginConfig === 'function';
+    const noticeEl = document.getElementById('saveNotice');
+    if (save) {
+      if (saveAvailable) {
+        await window.homebridge.savePluginConfig();
+        window.homebridge.toast.success('Configurazione salvata.');
+        noticeEl && noticeEl.classList.add('hidden');
+      } else {
+        window.homebridge.toast.warning('Premi "Salva" in alto per applicare definitivamente.');
+        noticeEl && noticeEl.classList.remove('hidden');
+      }
+    } else {
+      window.homebridge.toast.success('Configurazione aggiornata.');
+      if (!saveAvailable) {
+        noticeEl && noticeEl.classList.remove('hidden');
+      }
     }
-    window.homebridge.toast.success(save ? 'Configurazione salvata.' : 'Configurazione aggiornata.');
   } catch (e) {
     window.homebridge.toast.error('Errore nel salvataggio configurazione: ' + (e?.message || e));
     throw e;
@@ -142,6 +155,10 @@ async function onTableClick(ev) {
     if (action === 'reveal') {
       const data = await request('/token', { name });
       if (data?.error) throw new Error(data.error);
+      if (data?.notReady) {
+        window.homebridge.toast.warning('Server non ancora pronto. Riprova tra qualche secondo o riavvia il bridge.');
+        return;
+      }
       showOutput(`URL (prima e unica rivelazione):\n${escapeHtml(data.url)}`);
       window.homebridge.toast.success(`URL rivelato per '${name}'.`);
       await loadState();
@@ -149,6 +166,10 @@ async function onTableClick(ev) {
       if (!confirm(`Rigenerare il token permanente per '${name}'?`)) return;
       const data = await request('/regenerate', { name });
       if (data?.error) throw new Error(data.error);
+      if (data?.notReady) {
+        window.homebridge.toast.warning('Server non ancora pronto. Riprova tra qualche secondo o riavvia il bridge.');
+        return;
+      }
       showOutput(`Nuovo token permanente (prima rivelazione):\n${escapeHtml(data.url)}`);
       window.homebridge.toast.success(`Token rigenerato per '${name}'.`);
       await loadState();
@@ -238,7 +259,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     list.push({ name, path, debounceSeconds, durationSeconds });
     pluginConfig.webhooks = list;
-    await persistConfig({ save: true });
+  // Prova salvataggio automatico; se non disponibile mostra avviso
+  await persistConfig({ save: true });
     // Attendi che Homebridge applichi la nuova configurazione e avvii il server
     setTimeout(loadState, 1500);
     whForm.reset();

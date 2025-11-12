@@ -28,11 +28,13 @@
 #hb-protect-ui .status.ok { color:#2a9d8f; }
 #hb-protect-ui .status.err { color:#e63946; }
 #hb-protect-ui .hb-ui-footer { text-align:center; font-size:0.65rem; color:#555; padding:0.5rem 0 1rem; }
+#hb-protect-ui .notice { background:#fff8e1; border:1px solid #ffe082; color:#5d4037; padding:0.4rem 0.6rem; border-radius:4px; font-size:0.75rem; margin:0.25rem 0 0.5rem; }
 
 /* Dark mode support: detect parent dark class if present */
 .dark-theme #hb-protect-ui .hb-ui-section { background:#222; border-color:#444; color:#eee; }
 .dark-theme #hb-protect-ui .hb-ui-table th { background:#333; color:#eee; }
 .dark-theme #hb-protect-ui button.action { border-color:#254d8a; }
+.dark-theme #hb-protect-ui .notice { background:#4e342e; border-color:#6d4c41; color:#fff3e0; }
 .dark-theme #hb-protect-ui #ephemeralContent,
 html.dark #hb-protect-ui #ephemeralContent,
 body.dark #hb-protect-ui #ephemeralContent,
