@@ -1,3 +1,8 @@
+## [0.2.27] - 2025-11-12
+
+- Fix (UI): la rigenerazione del token ora aggiorna e salva anche la configurazione persistente (config.json) usando le API della UI; niente più modifiche solo in memoria.
+- UX: messaggio di conferma aggiornato per l'eliminazione (nota sul possibile riavvio per rimuovere l'accessorio già creato).
+
 ## [0.2.26] - 2025-11-12
 
 - UI: aggiunto banner che avvisa quando è necessario premere "Salva" per applicare Crea/Elimina in certe viste della UI.
@@ -14,6 +19,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.2.20] - 2025-11-12
+
 - Auto-salvataggio: la creazione di un Webhook salva subito la configurazione e aggiorna lo stato automaticamente.
 - Rimossi i pulsanti "Aggiorna" per sezione (flusso più lineare).
 
