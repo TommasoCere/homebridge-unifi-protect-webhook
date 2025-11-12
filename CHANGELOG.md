@@ -14,6 +14,13 @@ All notable changes to this project will be documented in this file.
 - Messaggi più chiari durante l'attesa dell'avvio del server alla prima configurazione.
 - Schema aggiornato: nome di default migliorato e descrizioni più guida.
 
+## [0.2.23] - 2025-11-12
+
+- Fix: bottoni "Rigenera" ed "Elimina" ora persistono subito (salvataggio automatico) e aggiornano la tabella dopo breve attesa.
+- UX: output URL (prima rivelazione / rigenerazione) con contrasto elevato, font monospazio leggibile e scroll automatico in vista.
+- Cleanup: rimossa logica ping non più usata, rimozione refresh manuale già completata.
+- Minor: toast di conferma per eliminazioni.
+
 - Semplificazione Webhooks: form ridotto a solo Nome (senza spazi); path auto `/wh/<nome minuscolo>`, debounce/duration default non modificabili.
 - Azioni Webhook ridotte: rimosse Info/Ephemeral; aggiunto pulsante "Rivela URL" (una sola volta) e "Rigenera" (prima rivelazione inclusa) + Elimina.
 - UI server: endpoint /token integrato; rimossi i proxy /info e /ephemeral per UX minimale.

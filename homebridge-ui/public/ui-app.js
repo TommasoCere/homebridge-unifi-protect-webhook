@@ -115,6 +115,7 @@ function showOutput(text) {
   const div = document.querySelector('#ephemeralContent');
   div.textContent = text;
   sec.classList.remove('hidden');
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 async function onTableClick(ev) {
@@ -137,15 +138,17 @@ async function onTableClick(ev) {
       const list = Array.isArray(pluginConfig.webhooks) ? pluginConfig.webhooks : [];
       const next = list.filter(w => String(w.name) !== String(name));
       pluginConfig.webhooks = next;
-      await persistConfig({ save: false });
-      await loadState();
+      await persistConfig({ save: true });
+      setTimeout(loadState, 1200);
+      window.homebridge.toast.success(`Webhook '${name}' eliminato.`);
     } else if (action === 'delete-em') {
       if (!confirm(`Eliminare il trigger email '${name}' dalla configurazione?`)) return;
       const list = Array.isArray(pluginConfig.emailTriggers) ? pluginConfig.emailTriggers : [];
       const next = list.filter(w => String(w.name) !== String(name));
       pluginConfig.emailTriggers = next;
-      await persistConfig({ save: false });
-      await loadState();
+      await persistConfig({ save: true });
+      setTimeout(loadState, 1200);
+      window.homebridge.toast.success(`Trigger email '${name}' eliminato.`);
     }
   } catch (e) {
     window.homebridge.toast.error('Errore: ' + (e?.message || e));

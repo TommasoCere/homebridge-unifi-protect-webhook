@@ -13,7 +13,16 @@
 #hb-protect-ui button.action.secondary { background:#457b9d; border-color:#457b9d; }
 #hb-protect-ui button.action.warn { background:#e76f51; border-color:#e76f51; }
 #hb-protect-ui button.action:hover { filter:brightness(1.07); }
-#hb-protect-ui #ephemeralContent { font-family:monospace; word-break:break-all; background:#f5f5f5; padding:0.7rem; border-radius:4px; font-size:0.75rem; }
+#hb-protect-ui #ephemeralContent {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	word-break: break-all;
+	background: #0b1420;
+	color: #e6edf3;
+	padding: 0.8rem 1rem;
+	border-radius: 6px;
+	font-size: 0.8rem;
+	border: 1px solid rgba(255,255,255,0.15);
+}
 #hb-protect-ui .status { margin-left:0.6rem; font-size:0.7rem; font-weight:600; }
 #hb-protect-ui .status.ok { color:#2a9d8f; }
 #hb-protect-ui .status.err { color:#e63946; }
@@ -23,4 +32,11 @@
 .dark-theme #hb-protect-ui .hb-ui-section { background:#222; border-color:#444; color:#eee; }
 .dark-theme #hb-protect-ui .hb-ui-table th { background:#333; color:#eee; }
 .dark-theme #hb-protect-ui button.action { border-color:#254d8a; }
-.dark-theme #hb-protect-ui #ephemeralContent { background:#333; color:#eee; }
+.dark-theme #hb-protect-ui #ephemeralContent,
+html.dark #hb-protect-ui #ephemeralContent,
+body.dark #hb-protect-ui #ephemeralContent,
+[data-theme="dark"] #hb-protect-ui #ephemeralContent {
+	background:#0b1420;
+	color:#e6edf3;
+	border-color: rgba(255,255,255,0.15);
+}
