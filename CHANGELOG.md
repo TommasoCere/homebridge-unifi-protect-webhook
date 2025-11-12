@@ -1,3 +1,9 @@
+## [0.2.26] - 2025-11-12
+
+- UI: aggiunto banner che avvisa quando è necessario premere "Salva" per applicare Crea/Elimina in certe viste della UI.
+- UI: gestione esplicita `notReady` per azioni Rivela/Rigenera (messaggi chiari e guida su retry/riavvio).
+- UI: migliorati i toast e lo stato dei bottoni durante le azioni.
+
 ## [0.2.25] - 2025-11-12
 
 - Fix (UI): pulsanti "Rigenera" e "Elimina" ora mostrano feedback immediato (toast), disabilitano il bottone durante l'azione e gestiscono gli errori in modo esplicito. Nessun clic su "Salva" richiesto.
