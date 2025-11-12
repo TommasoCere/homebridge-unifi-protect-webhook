@@ -69,4 +69,7 @@ class UiServer extends PluginUiServer {
   }
 }
 
-module.exports = UiServer;
+// Istanzia e avvia il server (pattern IIFE)
+(() => {
+  new UiServer();
+})();

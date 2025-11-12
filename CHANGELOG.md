@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.6] - 2025-11-12
+
+### Critical Fix
+
+- **Critico**: server UI ora istanziato automaticamente invece di solo esportato; l'UI integrata ora si renderizza correttamente in Homebridge UI X.
+
 ## [0.2.5] - 2025-11-12
 
 ### Compatibility
