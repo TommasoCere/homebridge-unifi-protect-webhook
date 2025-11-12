@@ -62,12 +62,37 @@ class PluginUiServer extends HomebridgePluginUiServer {
 	}
 
 	async _fetchJson(config, url, options = {}) {
-		const res = await fetch(url, { headers: this._getHeaders(config), ...options });
-		if (!res.ok) {
-			uiLog(`HTTP ${res.status} for ${url}`);
-			throw new Error(`HTTP ${res.status}`);
+		const maxRetries = 8;
+		const baseDelayMs = 250;
+		for (let attempt = 0; attempt <= maxRetries; attempt++) {
+			try {
+				const res = await fetch(url, { headers: this._getHeaders(config), ...options });
+				if (!res.ok) {
+					uiLog(`HTTP ${res.status} for ${url}`);
+					// Only retry on 502/503/504
+					if (![502, 503, 504].includes(res.status)) {
+						throw new Error(`HTTP ${res.status}`);
+					}
+				} else {
+					return await res.json();
+				}
+			} catch (e) {
+				// Retry on network errors like ECONNREFUSED during plugin startup
+				const isConnRefused = /ECONNREFUSED|fetch failed/i.test(String(e?.message || e));
+				if (attempt < maxRetries && isConnRefused) {
+					const delay = baseDelayMs * Math.pow(1.5, attempt);
+					await new Promise(r => setTimeout(r, delay));
+					continue;
+				}
+				// When all retries are exhausted, return a notReady stub so the UI can show a message
+				if (isConnRefused) {
+					return { notReady: true };
+				}
+				throw e;
+			}
 		}
-		return await res.json();
+		// Fallback safeguard
+		return { notReady: true };
 	}
 
 	async handleState(payload = {}) {

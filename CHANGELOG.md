@@ -8,6 +8,11 @@ All notable changes to this project will be documented in this file.
 - La UI passa la configurazione corrente al server UI evitando errori `getPluginConfig` su ambienti recenti.
 - Il server UI usa un fallback sugli env `HOMEBRIDGE_PLUGIN_CONFIG` per gestire sessioni senza payload.
 
+## [0.2.14] - 2025-11-12
+
+- UI server: aggiunto retry con backoff su `ECONNREFUSED` e 502/503/504 durante l'avvio del plugin.
+- UI client: gestisce `notReady` e ritenta automaticamente mostrando un messaggio in italiano.
+
 ## [0.2.12] - 2025-11-12
 
 ### Fixed (UI)

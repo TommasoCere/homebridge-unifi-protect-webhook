@@ -22,6 +22,11 @@ async function loadPluginConfig() {
 async function loadState() {
   try {
     const data = await request('/state');
+    if (data && data.notReady) {
+      setDiagMsg('Server non ancora pronto, ritento...');
+      setTimeout(loadState, 800);
+      return;
+    }
     renderWebhooks(data.webhooks || []);
     renderEmails(data.emailTriggers || []);
     setDiagMsg('Stato aggiornato');
