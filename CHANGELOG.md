@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.10] - 2025-01-12
+
+### Changed
+
+- Rimossa documentazione ridondante (CONFIGURATION.md, TROUBLESHOOTING.md, check-config.js, test-plugin-load.js)
+- README semplificato con istruzioni essenziali di installazione
+
+### Fixed
+
+- Chiarito che il problema principale è l'installazione mancante del plugin sul server
+
 ## [0.2.9] - 2025-01-12
 
 ### Added
