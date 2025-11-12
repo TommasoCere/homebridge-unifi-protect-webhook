@@ -1,3 +1,7 @@
+## [0.2.25] - 2025-11-12
+
+- Fix (UI): pulsanti "Rigenera" e "Elimina" ora mostrano feedback immediato (toast), disabilitano il bottone durante l'azione e gestiscono gli errori in modo esplicito. Nessun clic su "Salva" richiesto.
+
 # Changelog
 <!-- markdownlint-disable MD024 -->
 
