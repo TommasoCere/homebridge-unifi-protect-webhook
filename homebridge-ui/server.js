@@ -2,16 +2,22 @@
 
 const { PluginUiServer } = require("@homebridge/plugin-ui-utils");
 
+console.log("[HBUP-WEBHOOK-UI] Loading server.js...");
+
 class UiServer extends PluginUiServer {
   constructor() {
+    console.log("[HBUP-WEBHOOK-UI] Constructor called");
     super();
 
+    console.log("[HBUP-WEBHOOK-UI] Registering request handlers...");
     this.onRequest("/state", this.handleState.bind(this));
     this.onRequest("/info", this.handleInfo.bind(this));
     this.onRequest("/ephemeral", this.handleEphemeral.bind(this));
     this.onRequest("/regenerate", this.handleRegenerate.bind(this));
 
+    console.log("[HBUP-WEBHOOK-UI] Calling ready()...");
     this.ready();
+    console.log("[HBUP-WEBHOOK-UI] Server ready!");
   }
 
   getConfig() {
@@ -34,6 +40,7 @@ class UiServer extends PluginUiServer {
   }
 
   async handleState() {
+    console.log("[HBUP-WEBHOOK-UI] handleState called");
     const url = `${this.getBaseUrl()}/admin/state`;
     const res = await fetch(url, { headers: this.getHeaders() });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -70,6 +77,8 @@ class UiServer extends PluginUiServer {
 }
 
 // Istanzia e avvia il server (pattern IIFE)
+console.log("[HBUP-WEBHOOK-UI] About to instantiate UiServer...");
 (() => {
   new UiServer();
 })();
+console.log("[HBUP-WEBHOOK-UI] server.js execution complete.");

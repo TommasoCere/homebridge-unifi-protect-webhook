@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.7] - 2025-11-12
+
+### Debug
+
+- Aggiunto logging diagnostico dettagliato in `homebridge-ui/server.js` per tracciare il caricamento del server UI.
+- Console log per verificare se Homebridge esegue il server personalizzato.
+
 ## [0.2.6] - 2025-11-12
 
 ### Critical Fix
