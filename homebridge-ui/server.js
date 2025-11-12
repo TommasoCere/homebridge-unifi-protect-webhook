@@ -16,8 +16,8 @@ class PluginUiServer extends HomebridgePluginUiServer {
 		uiLog("Registering request handlers");
 		this.onRequest("/state", this.handleState.bind(this));
 		this.onRequest("/ping", this.handlePing.bind(this));
-		this.onRequest("/info", this.handleInfo.bind(this));
-		this.onRequest("/ephemeral", this.handleEphemeral.bind(this));
+		// Deprecated endpoints (info, ephemeral) rimossi per semplificare l'interfaccia
+		this.onRequest("/token", this.handleRevealToken.bind(this));
 		this.onRequest("/regenerate", this.handleRegenerate.bind(this));
 		this.onRequest("/test-webhook-url", this.handleTestRequest.bind(this));
 
@@ -103,27 +103,13 @@ class PluginUiServer extends HomebridgePluginUiServer {
 		return await this._fetchJson(config, url);
 	}
 
-	async handleInfo(payload) {
+	async handleRevealToken(payload) {
 		const name = payload?.name;
-		if (!name) {
-			throw new Error("missing name");
-		}
+		if (!name) throw new Error("missing name");
 		const config = this._resolveConfig(payload);
-		uiLog(`handleInfo for ${name}`);
-		const url = `${this._getBaseUrl(config)}/admin/webhooks/${encodeURIComponent(name)}/info`;
+		uiLog(`handleRevealToken for ${name}`);
+		const url = `${this._getBaseUrl(config)}/admin/webhooks/${encodeURIComponent(name)}/token`;
 		return await this._fetchJson(config, url);
-	}
-
-	async handleEphemeral(payload) {
-		const name = payload?.name;
-		if (!name) {
-			throw new Error("missing name");
-		}
-		const config = this._resolveConfig(payload);
-		const ttl = Math.max(10, Math.min(3600, parseInt(payload?.ttl || 300)));
-		uiLog(`handleEphemeral for ${name} ttl=${ttl}`);
-		const url = `${this._getBaseUrl(config)}/admin/webhooks/${encodeURIComponent(name)}/ephemeral?ttl=${ttl}`;
-		return await this._fetchJson(config, url, { method: "POST" });
 	}
 
 	async handleRegenerate(payload) {

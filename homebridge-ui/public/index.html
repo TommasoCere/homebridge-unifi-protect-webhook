@@ -14,13 +14,18 @@
   <main class="hb-ui-main">
     <section class="hb-ui-section">
       <div style="display:flex; gap:.5rem; align-items:center;">
-        <button id="btnRefresh" class="action">Aggiorna stato</button>
-        <button id="btnPing" class="action secondary">Ping</button>
         <span id="diagMsg" class="status"></span>
       </div>
     </section>
     <section class="hb-ui-section">
       <h2>Webhooks</h2>
+      <div style="display:flex; gap:.5rem; align-items:flex-end; flex-wrap:wrap; margin: .25rem 0 .5rem;">
+        <form id="whAddForm" style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:flex-end;">
+          <label>Nome (senza spazi)<br><input type="text" id="whName" required placeholder="es. PortaIngresso"/></label>
+          <button class="action" type="submit">Crea Webhook</button>
+        </form>
+        <button id="btnRefreshWh" class="action secondary" title="Ricarica solo sezione Webhooks">Aggiorna</button>
+      </div>
       <table id="webhooksTable" class="hb-ui-table">
         <thead>
           <tr>
@@ -37,6 +42,19 @@
 
     <section class="hb-ui-section">
       <h2>Email Triggers</h2>
+      <div style="display:flex; gap:.5rem; align-items:flex-end; flex-wrap:wrap; margin: .25rem 0 .5rem;">
+        <form id="emAddForm" style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:flex-end;">
+          <label>Nome<br><input type="text" id="emName" required placeholder="es. Reolink"/></label>
+          <label>IMAP Host<br><input type="text" id="emImapHost" required placeholder="imap.gmail.com"/></label>
+          <label>IMAP User<br><input type="text" id="emImapUser" required placeholder="utente@gmail.com"/></label>
+          <label>IMAP Password<br><input type="password" id="emImapPassword" required placeholder="App Password"/></label>
+          <label>Subject Match<br><input type="text" id="emSubject" required placeholder="Reolink Alert"/></label>
+          <label>Debounce (s)<br><input type="number" id="emDebounce" min="0" value="0"/></label>
+          <label>Durata (s)<br><input type="number" id="emDuration" min="1" value="10"/></label>
+          <button class="action" type="submit">Aggiungi Trigger</button>
+        </form>
+        <button id="btnRefreshEm" class="action secondary" title="Ricarica solo sezione Email">Aggiorna</button>
+      </div>
       <table id="emailTable" class="hb-ui-table">
         <thead>
           <tr>
@@ -44,6 +62,7 @@
             <th>Host IMAP</th>
             <th>Debounce (s)</th>
             <th>Durata Evento (s)</th>
+            <th>Azioni</th>
           </tr>
         </thead>
         <tbody></tbody>

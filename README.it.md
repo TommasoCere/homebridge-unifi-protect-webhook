@@ -14,30 +14,33 @@ Plugin per Homebridge che espone endpoint Webhook locali e trigger via Email IMA
 ## Installazione
 
 1. **Installa il plugin sul server Homebridge**:
-   ```bash
-   npm install -g homebridge-unifi-protect-webhook
-   ```
+
+```bash
+npm install -g homebridge-unifi-protect-webhook
+```
 
 2. **Configura nel `config.json`** (via Homebridge UI o manualmente):
-   ```json
-   {
-     "platforms": [
-       {
-         "platform": "ProtectWebhookPlatform",
-         "name": "UniFi Protect Webhook",
-         "port": 12050
-       }
-     ]
-   }
-   ```
+
+```json
+{
+  "platforms": [
+    {
+      "platform": "ProtectWebhookPlatform",
+      "name": "UniFi Protect Webhook",
+      "port": 12050
+    }
+  ]
+}
+```
    **⚠️ IMPORTANTE**: Il campo `"platform"` deve essere esattamente `"ProtectWebhookPlatform"`.
 
 3. **Riavvia Homebridge**
 
 4. **Verifica installazione**:
-   ```bash
-   npm list -g homebridge-unifi-protect-webhook
-   ```
+
+```bash
+npm list -g homebridge-unifi-protect-webhook
+```
    Dovresti vedere la versione installata. Se vedi `(empty)`, il plugin non è installato.
 
 ### Dove trovare la UI Amministrativa (integrata)
@@ -51,11 +54,9 @@ Se vedi solo il form di configurazione e non il pannello Admin:
 
 Una volta visibile, il pannello Admin consente di:
 
-- Visualizzare info sicure del webhook (token redatto fino alla prima rivelazione se auto-generato).
-- Generare URL temporanei con token a vita breve.
-- Rigenerare il token permanente (con prima rivelazione nel response).
-- Rivelare una sola volta un token auto‑generato.
-- Usare Ping/Aggiorna per una diagnostica rapida.
+- Creare un Webhook inserendo solo il Nome (senza spazi). Il percorso viene generato automaticamente (`/wh/<nome>`), i parametri avanzati hanno valori sicuri di default.
+- Rivelare una sola volta l’URL completo del Webhook (prima rivelazione). In seguito, se serve, usa "Rigenera" per ottenere un nuovo URL (prima rivelazione inclusa).
+- Eliminare Webhooks o gestire i trigger Email.
 
 ## Sicurezza
 
@@ -87,8 +88,8 @@ curl -X POST "http://<IP-HB>:12050/admin/webhooks/<NOME>/regenerate?adminSecret=
 UI integrata (dentro Homebridge Config UI):
 
 - Apri la pagina del plugin: in alto trovi la configurazione e sotto il pannello Admin.
-- Usa "Genera URL temporaneo" per ottenere un URL a vita breve (token effimero) senza esporre il token permanente.
-- Con "Rigenera token" ottieni un nuovo token (con prima rivelazione inclusa nella risposta).
+- Crea il Webhook con il solo Nome, poi usa "Rivela URL" per la prima (e unica) rivelazione del link completo da incollare in UniFi/altro sistema.
+- Se in futuro ti serve un nuovo link, usa "Rigenera" (mostra la nuova URL in prima rivelazione).
 
 Nota:
 

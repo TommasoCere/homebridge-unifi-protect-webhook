@@ -3,6 +3,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.20] - 2025-11-12
+
+- Semplificazione Webhooks: form ridotto a solo Nome (senza spazi); path auto `/wh/<nome minuscolo>`, debounce/duration default non modificabili.
+- Azioni Webhook ridotte: rimosse Info/Ephemeral; aggiunto pulsante "Rivela URL" (una sola volta) e "Rigenera" (prima rivelazione inclusa) + Elimina.
+- UI server: endpoint /token integrato; rimossi i proxy /info e /ephemeral per UX minimale.
+- Rimossi bottoni globali "Aggiorna stato" e "Ping"; resta refresh sezione Webhooks.
+- Messaggi toast per guida (creazione, rivelazione, rigenerazione).
+- Bump versione a 0.2.20.
+
+## [0.2.19] - 2025-11-12
+
+- UI: aggiunti form per creare Webhooks ed Email triggers direttamente dalla pagina del plugin (senza editare JSON manualmente).
+- UI: pulsanti Elimina per Webhooks ed Email triggers (aggiornano la configurazione immediatamente).
+- UI: funzione `persistConfig` per aggiornare dinamicamente la configurazione Homebridge prima del salvataggio definitivo.
+- UI: aggiornati layout tabelle con colonna Azioni aggiuntiva per Email triggers.
+- Bump versione `package.json` a 0.2.19.
+
 ## [0.2.18] - 2025-11-12
 
 - UI: messaggio chiaro se il plugin non è ancora configurato (platform mancante) prima di tentare stato/ping.
