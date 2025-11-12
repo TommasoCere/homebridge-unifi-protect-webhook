@@ -14,12 +14,25 @@ All notable changes to this project will be documented in this file.
 - Messaggi più chiari durante l'attesa dell'avvio del server alla prima configurazione.
 - Schema aggiornato: nome di default migliorato e descrizioni più guida.
 
+## [0.2.24] - 2025-11-12
+
+- Conformità HomeKit: Accessory Information (Manufacturer/Model/Serial/Firmware) ai MotionSensor.
+- UI: rimossa la colonna del Token, aggiunto pulsante Copia URL, messaggio empty-state.
+- Path normalizzato in creazione (`encodeURIComponent`).
+- Sync token nel context quando impostato manualmente.
+- README IT: guida UniFi Protect e chiarimento su `adminSecret`.
+
 ## [0.2.23] - 2025-11-12
 
 - Fix: bottoni "Rigenera" ed "Elimina" ora persistono subito (salvataggio automatico) e aggiornano la tabella dopo breve attesa.
 - UX: output URL (prima rivelazione / rigenerazione) con contrasto elevato, font monospazio leggibile e scroll automatico in vista.
 - Cleanup: rimossa logica ping non più usata, rimozione refresh manuale già completata.
 - Minor: toast di conferma per eliminazioni.
+
+- Conformità HomeKit: aggiunte caratteristiche Accessory Information (Manufacturer/Model/Serial/Firmware) agli accessori MotionSensor.
+- UI: rimossa colonna Token Permanente (coerenza con rivelazione singola) e aggiunto pulsante "Copia URL" nell'area di output.
+- Path webhook normalizzato (encodeURIComponent) in creazione da UI.
+- README IT: sezione su configurazione in UniFi Protect e chiarimento che `adminSecret` è raccomandato.
 
 - Semplificazione Webhooks: form ridotto a solo Nome (senza spazi); path auto `/wh/<nome minuscolo>`, debounce/duration default non modificabili.
 - Azioni Webhook ridotte: rimosse Info/Ephemeral; aggiunto pulsante "Rivela URL" (una sola volta) e "Rigenera" (prima rivelazione inclusa) + Elimina.

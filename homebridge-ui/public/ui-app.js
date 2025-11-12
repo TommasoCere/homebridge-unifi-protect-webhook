@@ -76,13 +76,18 @@ async function loadState() {
 function renderWebhooks(items) {
   const tbody = document.querySelector('#webhooksTable tbody');
   tbody.innerHTML = '';
+  if (!items || items.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="4"><em>Nessun webhook. Crea il primo con il form qui sopra.</em></td>`;
+    tbody.appendChild(tr);
+    return;
+  }
   for (const w of items) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${escapeHtml(w.name)}</td>
       <td><code>${escapeHtml(w.path)}</code></td>
       <td><code>${escapeHtml(w.url)}</code></td>
-      <td>${w.permanentToken ? `<code>${escapeHtml(w.permanentToken)}</code>` : '<em>nascosto</em>'}</td>
       <td>
         ${w.revealed ? '' : `<button class="action" data-action="reveal" data-name="${escapeAttr(w.name)}">Rivela URL</button>`}
         <button class="action warn" data-action="regenerate" data-name="${escapeAttr(w.name)}">Rigenera</button>
@@ -208,7 +213,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       return window.homebridge.toast.error('Il Nome non deve contenere spazi.');
     }
     const name = rawName;
-    const path = `/wh/${name.toLowerCase()}`;
+  const path = `/wh/${encodeURIComponent(name.toLowerCase())}`;
     const debounceSeconds = 0;
     const durationSeconds = 10;
     const list = Array.isArray(pluginConfig.webhooks) ? pluginConfig.webhooks : [];
@@ -254,4 +259,20 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   await loadPluginConfig();
   loadState();
+
+  // Copy URL button
+  const copyBtn = document.getElementById('copyOutputBtn');
+  copyBtn && copyBtn.addEventListener('click', () => {
+    const txt = document.getElementById('ephemeralContent')?.textContent || '';
+    // Cerca una riga che inizi con http
+    const match = txt.match(/https?:\/\/[^\s]+/);
+    if (!match) {
+      return window.homebridge.toast.error('Nessun URL copiabile trovato.');
+    }
+    navigator.clipboard.writeText(match[0]).then(() => {
+      window.homebridge.toast.success('URL copiato negli appunti.');
+    }).catch(e => {
+      window.homebridge.toast.error('Copia fallita: ' + (e?.message || e));
+    });
+  });
 });

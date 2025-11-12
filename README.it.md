@@ -64,6 +64,13 @@ Una volta visibile, il pannello Admin consente di:
 - Usa sempre i token per i webhook. Se lasci vuoto, il plugin ne genera uno e lo salva nel contesto dell'accessorio (persistente in Homebridge).
 - Puoi ulteriormente restringere con `allowedIps` (lista separata da virgole).
 
+### adminSecret è superfluo?
+
+No: `adminSecret` non è superfluo. È opzionale ma fortemente consigliato.
+
+- Senza `adminSecret`: gli endpoint amministrativi sono comunque limitati alla rete locale, ma chiunque nella LAN potrebbe chiamarli e rivelare/rigenerare token se conosce gli URL.
+- Con `adminSecret`: oltre al vincolo di rete locale, è richiesto un segreto per accedere a rivelazione/rigenerazione. Impostalo nella configurazione del plugin e conservalo con cura.
+
 ### Token, URL & UI Integrata in Homebridge
 
 - Imposta un `adminSecret` nella configurazione del plugin per usare gli endpoint amministrativi.
@@ -90,6 +97,7 @@ UI integrata (dentro Homebridge Config UI):
 - Apri la pagina del plugin: in alto trovi la configurazione e sotto il pannello Admin.
 - Crea il Webhook con il solo Nome, poi usa "Rivela URL" per la prima (e unica) rivelazione del link completo da incollare in UniFi/altro sistema.
 - Se in futuro ti serve un nuovo link, usa "Rigenera" (mostra la nuova URL in prima rivelazione).
+- Puoi usare il pulsante "Copia URL" per copiarlo rapidamente negli appunti.
 
 Nota:
 
@@ -100,6 +108,22 @@ Note:
 
 - Gli endpoint admin sono accessibili solo da rete locale; se `adminSecret` è impostato, è obbligatorio fornirlo (header `x-admin-secret` o query `?adminSecret=`).
 - I token non vengono scritti nei log e le query sensibili nei log vengono redatte (`token`/`adminSecret`). Usa gli endpoint admin per recuperarli e conservali in modo sicuro.
+
+## Come configurare in UniFi Protect
+
+Esempio (Protect ≥ 6.1.x):
+
+1. Apri UniFi Protect → Settings → Alerts → Webhooks → Add.
+2. Name: usa lo stesso nome del Webhook creato nel plugin (opzionale, è per tua comodità).
+3. Method: seleziona GET (anche POST funziona; il plugin accetta entrambi).
+4. Delivery URL: incolla l'URL che hai appena rivelato dalla UI del plugin (incluso `?token=...`).
+5. Authentication: lascia vuoto (non serve, il token in query è sufficiente). In alternativa avanzata, potresti inviare il token nell'header `x-webhook-token` se l'interfaccia lo permette.
+6. Salva. Esegui un test: al verificarsi dell'evento, in Home l'accessorio Motion Sensor si attiva per la durata configurata.
+
+Suggerimenti:
+
+- Se rigeneri il token nel plugin, ricorda di aggiornare l'URL anche in UniFi Protect.
+- Mantieni `enforceLocalOnly` attivo e posiziona Homebridge in una LAN fidata. Imposta `adminSecret` per un ulteriore livello di protezione.
 
 ## UI Config (schema)
 

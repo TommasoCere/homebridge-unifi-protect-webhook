@@ -112,6 +112,21 @@ class ProtectWebhookPlatform {
 			accessory.context = { key };
 			accessory.category = hap.Categories.SENSOR;
 			accessory.addService(hap.Service.MotionSensor, displayName);
+			// Accessory Information (migliora conformità HomeKit / HAP)
+			try {
+				const info = accessory.getService(hap.Service.AccessoryInformation) || accessory.addService(hap.Service.AccessoryInformation);
+				// Manufacturer / Model statici per chiarezza
+				info.setCharacteristic(hap.Characteristic.Manufacturer, "Homebridge TC UniFi Protect");
+				info.setCharacteristic(hap.Characteristic.Model, "Webhook TC Sensor");
+				info.setCharacteristic(hap.Characteristic.SerialNumber, `wh-${key}`);
+				// Versione firmware = versione package se disponibile
+				try {
+					const pkg = require('../package.json');
+					if (pkg?.version) info.setCharacteristic(hap.Characteristic.FirmwareRevision, pkg.version);
+				} catch (_) {}
+			} catch (e) {
+				this.logger.debug('AccessoryInformation setup failed:', e.message);
+			}
 			this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
 			this.logger.info(`Registered accessory '${displayName}'`);
 		}
