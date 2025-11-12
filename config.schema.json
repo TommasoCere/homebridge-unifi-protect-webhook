@@ -35,6 +35,11 @@
         "description": "Se true (default) blocca richieste da IP non privati RFC1918/loopback",
         "default": true
       },
+         "publicHost": {
+           "type": "string",
+           "title": "Host/IP pubblico per URL webhook",
+           "description": "Hostname o IP della macchina Homebridge da usare quando si generano/rivelano gli URL dei webhook. Se omesso viene rilevato automaticamente il primo IP privato disponibile. Imposta manualmente se nell'UI vedi 127.0.0.1 ma UniFi Protect è su un altro host. Esempio: 192.168.1.50"
+         },
       "webhooks": {
         "type": "array",
         "description": "Definizione manuale avanzata. Per creare velocemente un webhook usa il form nella UI Admin in basso (inserisci solo Nome, path e token auto).",
@@ -101,6 +106,18 @@
       "expandable": true,
       "expanded": false,
       "items": ["webhooks"]
+        "publicBaseUrl": {
+          "type": "string",
+          "title": "Base URL pubblico completo",
+          "description": "URL completo (es: https://homebridge.miodominio.it:8443/hb) da usare per generare gli URL dei webhook. Ha priorità su publicHost e permette HTTPS, porta diversa o path base dietro reverse proxy.",
+          "default": ""
+        },
+        "trustProxyHeaders": {
+          "type": "boolean",
+          "title": "Usa intestazioni X-Forwarded-*",
+          "description": "Se true e il plugin è dietro un reverse proxy che imposta X-Forwarded-Host / X-Forwarded-Proto, queste verranno usate per costruire la base URL.",
+          "default": false
+        },
     },
     {
       "type": "section",

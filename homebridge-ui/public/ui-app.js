@@ -3,11 +3,39 @@ function escapeAttr(s) { return escapeHtml(s).replace(/"/g, '&quot;'); }
 
 let pluginConfig = {};
 
-async function request(path, body) {
-  const payload = { ...(body || {}) };
-  payload.config = pluginConfig || {};
-  return await window.homebridge.request(path, payload);
+function generateWebhookToken() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    try { return window.crypto.randomUUID(); } catch (_) {}
+  }
+  let d = new Date().getTime();
+  if (typeof performance !== 'undefined' && typeof performance.now === 'function') d += performance.now();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = (d + Math.random() * 16) % 16 | 0;
+    d = Math.floor(d / 16);
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
 }
+
+function computeBaseUrlFromConfig(cfg) {
+  const port = cfg?.port || 12050;
+  const base = (cfg?.publicBaseUrl && String(cfg.publicBaseUrl).trim()) || '';
+  if (base) {
+    try {
+      const u = new URL(/^https?:\/\//i.test(base) ? base : `http://${base}`);
+      return `${u.protocol}//${u.host}${u.pathname.replace(/\/$/, '')}`;
+    } catch (_) {
+      // ignore and fallback
+    }
+  }
+  const host = (cfg?.publicHost && String(cfg.publicHost).trim()) || '';
+  if (host) return `http://${host}:${port}`;
+  // Fallback: mostra bindAddress se non loopback, altrimenti placeholder
+  const bind = (cfg?.bindAddress && String(cfg.bindAddress).trim()) || '';
+  if (bind && !/^127\.|^(localhost|\[::1\])/.test(bind)) return `http://${bind}:${port}`;
+  return `http://<IP-HOMEBRIDGE>:${port}`;
+}
+
+// Nessuna richiesta backend: UI opera solo sulla bozza config
 
 async function loadPluginConfig() {
   try {
@@ -43,21 +71,9 @@ async function persistConfig({ save = false } = {}) {
     await window.homebridge.updatePluginConfig([merged]);
     const saveAvailable = typeof window.homebridge.savePluginConfig === 'function';
     const noticeEl = document.getElementById('saveNotice');
-    if (save) {
-      if (saveAvailable) {
-        await window.homebridge.savePluginConfig();
-        window.homebridge.toast.success('Configurazione salvata.');
-        noticeEl && noticeEl.classList.add('hidden');
-      } else {
-        window.homebridge.toast.warning('Premi "Salva" in alto per applicare definitivamente.');
-        noticeEl && noticeEl.classList.remove('hidden');
-      }
-    } else {
-      window.homebridge.toast.success('Configurazione aggiornata.');
-      if (!saveAvailable) {
-        noticeEl && noticeEl.classList.remove('hidden');
-      }
-    }
+    // Nuova specifica: non salviamo mai automaticamente; abilitiamo solo il pulsante Salva
+    window.homebridge.toast.success('Bozza aggiornata. Clicca "SALVA" per applicare.');
+    if (!saveAvailable) noticeEl && noticeEl.classList.remove('hidden');
   } catch (e) {
     window.homebridge.toast.error('Errore nel salvataggio configurazione: ' + (e?.message || e));
     throw e;
@@ -69,21 +85,23 @@ function isConfigured() {
   return pluginConfig && typeof pluginConfig === 'object' && pluginConfig.platform === 'ProtectWebhookPlatform';
 }
 
-async function loadState() {
-  try {
-    const data = await request('/state');
-    if (data && data.notReady) {
-      setDiagMsg('Server non ancora pronto (prima configurazione o riavvio), attendo...');
-      setTimeout(loadState, 800);
-      return;
-    }
-    renderWebhooks(data.webhooks || []);
-    renderEmails(data.emailTriggers || []);
-    setDiagMsg('Stato aggiornato');
-  } catch (e) {
-    window.homebridge.toast.error('Errore nel caricamento stato: ' + (e?.message || e));
-    setDiagMsg('Errore stato');
-  }
+function loadStateFromDraft() {
+  const base = computeBaseUrlFromConfig(pluginConfig);
+  const hooks = (Array.isArray(pluginConfig.webhooks) ? pluginConfig.webhooks : []).map(w => {
+    const name = String(w.name || '').trim();
+    const path = (w.path && String(w.path).trim()) || (name ? `/wh/${encodeURIComponent(name.toLowerCase())}` : '/wh/<nome>');
+    const revealed = !!w.tokenRevealed;
+    return {
+      name,
+      path,
+      url: `${base}${path}`,
+      revealed
+    };
+  });
+  renderWebhooks(hooks);
+  const emails = Array.isArray(pluginConfig.emailTriggers) ? pluginConfig.emailTriggers : [];
+  renderEmails(emails);
+  setDiagMsg('Bozza caricata');
 }
 
 function renderWebhooks(items) {
@@ -153,62 +171,56 @@ async function onTableClick(ev) {
       })[action]);
     }
     if (action === 'reveal') {
-      const data = await request('/token', { name });
-      if (data?.error) throw new Error(data.error);
-      if (data?.notReady) {
-        window.homebridge.toast.warning('Server non ancora pronto. Riprova tra qualche secondo o riavvia il bridge.');
-        return;
-      }
-      showOutput(`URL (prima e unica rivelazione):\n${escapeHtml(data.url)}`);
-      window.homebridge.toast.success(`URL rivelato per '${name}'.`);
-      await loadState();
-    } else if (action === 'regenerate') {
-      if (!confirm(`Rigenerare il token permanente per '${name}'?`)) return;
-      const data = await request('/regenerate', { name });
-      if (data?.error) throw new Error(data.error);
-      if (data?.notReady) {
-        window.homebridge.toast.warning('Server non ancora pronto. Riprova tra qualche secondo o riavvia il bridge.');
-        return;
-      }
-      // Aggiorna la configurazione persistente con il nuovo token
       const list = Array.isArray(pluginConfig.webhooks) ? pluginConfig.webhooks : [];
       const idx = list.findIndex(w => String(w.name) === String(name));
-      if (idx >= 0) {
-        // Salviamo il token generato lato backend (data.token) nella config
-        list[idx] = {
-          ...list[idx],
-          token: data.token || list[idx].token, // fallback precedente se assente
-          tokenAutogenerated: true,
-          tokenRevealed: false // reset flag rivelazione
-        };
-        pluginConfig.webhooks = list;
-        try {
-          await persistConfig({ save: true });
-        } catch (e) {
-          window.homebridge.toast.error('Errore salvataggio nuovo token in config: ' + (e?.message || e));
-        }
-      } else {
-        window.homebridge.toast.warning('Webhook non trovato in configurazione locale; il token è stato rigenerato solo in memoria.');
+      if (idx < 0) throw new Error('Webhook non trovato.');
+      const base = computeBaseUrlFromConfig(pluginConfig);
+      const path = (list[idx].path && String(list[idx].path).trim()) || `/wh/${encodeURIComponent(name.toLowerCase())}`;
+      if (list[idx].token && list[idx].tokenRevealed) {
+        window.homebridge.toast.warning('Token già rivelato. Usa Rigenera per crearne uno nuovo.');
+        return;
       }
-      showOutput(`Nuovo token permanente (prima rivelazione):\n${escapeHtml(data.url)}`);
-      window.homebridge.toast.success(`Token rigenerato per '${name}' e salvato in config.`);
-      await loadState();
+      if (!list[idx].token) {
+        list[idx].token = generateWebhookToken();
+        list[idx].tokenAutogenerated = true;
+      }
+      list[idx].tokenRevealed = true;
+      pluginConfig.webhooks = list;
+      await persistConfig({ save: false });
+      showOutput(`URL (prima e unica rivelazione):\n${escapeHtml(`${base}${path}?token=${encodeURIComponent(list[idx].token)}`)}`);
+      window.homebridge.toast.success(`URL rivelato per '${name}'. Ricorda di cliccare SALVA.`);
+      loadStateFromDraft();
+    } else if (action === 'regenerate') {
+      if (!confirm(`Rigenerare il token permanente per '${name}'?`)) return;
+      const list = Array.isArray(pluginConfig.webhooks) ? pluginConfig.webhooks : [];
+      const idx = list.findIndex(w => String(w.name) === String(name));
+      if (idx < 0) throw new Error('Webhook non trovato.');
+      const base = computeBaseUrlFromConfig(pluginConfig);
+      const path = (list[idx].path && String(list[idx].path).trim()) || `/wh/${encodeURIComponent(name.toLowerCase())}`;
+      list[idx].token = generateWebhookToken();
+      list[idx].tokenAutogenerated = true;
+      list[idx].tokenRevealed = true; // prima rivelazione contestuale
+      pluginConfig.webhooks = list;
+      await persistConfig({ save: false });
+      showOutput(`Nuovo token permanente (prima rivelazione):\n${escapeHtml(`${base}${path}?token=${encodeURIComponent(list[idx].token)}`)}`);
+      window.homebridge.toast.success(`Token rigenerato per '${name}'. Ricorda di cliccare SALVA.`);
+      loadStateFromDraft();
     } else if (action === 'delete-wh') {
       if (!confirm(`Eliminare il webhook '${name}' dalla configurazione?`)) return;
       const list = Array.isArray(pluginConfig.webhooks) ? pluginConfig.webhooks : [];
       const next = list.filter(w => String(w.name) !== String(name));
       pluginConfig.webhooks = next;
-      await persistConfig({ save: true });
-      setTimeout(loadState, 1200);
-      window.homebridge.toast.success(`Webhook '${name}' eliminato. Riavvia Homebridge per rimuovere l'accessorio se ancora presente.`);
+      await persistConfig({ save: false });
+      loadStateFromDraft();
+      window.homebridge.toast.success(`Webhook '${name}' eliminato. Clicca SALVA per confermare.`);
     } else if (action === 'delete-em') {
       if (!confirm(`Eliminare il trigger email '${name}' dalla configurazione?`)) return;
       const list = Array.isArray(pluginConfig.emailTriggers) ? pluginConfig.emailTriggers : [];
       const next = list.filter(w => String(w.name) !== String(name));
       pluginConfig.emailTriggers = next;
-      await persistConfig({ save: true });
-      setTimeout(loadState, 1200);
-      window.homebridge.toast.success(`Trigger email '${name}' eliminato.`);
+      await persistConfig({ save: false });
+      loadStateFromDraft();
+      window.homebridge.toast.success(`Trigger email '${name}' eliminato. Clicca SALVA per confermare.`);
     }
   } catch (e) {
     window.homebridge.toast.error('Errore: ' + (e?.message || e));
@@ -222,24 +234,7 @@ function setDiagMsg(msg) {
   if (el) el.textContent = msg;
 }
 
-async function ping() {
-  const t0 = performance.now();
-  try {
-    if (!isConfigured()) {
-      setDiagMsg('Plugin non configurato: imposta e riavvia.');
-      return;
-    }
-    const res = await request('/ping');
-    if (res && res.notReady) {
-      setDiagMsg('Server non ancora pronto (ping).');
-      return;
-    }
-    const dt = res?.ms ?? Math.round(performance.now() - t0);
-    setDiagMsg(`Ping ok (${dt}ms)`);
-  } catch (e) {
-    setDiagMsg('Ping fallito');
-  }
-}
+// Nessun ping: UI opera offline sulla bozza
 
 window.addEventListener('DOMContentLoaded', async () => {
   document.querySelector('#webhooksTable').addEventListener('click', onTableClick);
@@ -279,12 +274,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     list.push({ name, path, debounceSeconds, durationSeconds });
     pluginConfig.webhooks = list;
-  // Prova salvataggio automatico; se non disponibile mostra avviso
-  await persistConfig({ save: true });
-    // Attendi che Homebridge applichi la nuova configurazione e avvii il server
-    setTimeout(loadState, 1500);
+  await persistConfig({ save: false });
+    loadStateFromDraft();
     whForm.reset();
-  window.homebridge.toast.success('Webhook creato e salvato. Dopo l’aggiornamento apparirà in tabella.');
+  window.homebridge.toast.success('Webhook aggiunto alla bozza. Clicca SALVA per confermare.');
   });
 
   // Add Email trigger
@@ -311,12 +304,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     list.push({ name, imapHost, imapPort: 993, imapTls: true, imapUser, imapPassword, subjectMatch, debounceSeconds, durationSeconds });
     pluginConfig.emailTriggers = list;
     await persistConfig({ save: false });
-    await loadState();
+    loadStateFromDraft();
     emForm.reset();
   });
 
   await loadPluginConfig();
-  loadState();
+  loadStateFromDraft();
 
   // Copy URL button
   const copyBtn = document.getElementById('copyOutputBtn');

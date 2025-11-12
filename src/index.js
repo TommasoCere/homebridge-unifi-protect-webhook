@@ -8,6 +8,7 @@ const Logger = require("./logger");
 const createServer = require("./server");
 const setupWebhooks = require("./webhooks");
 const setupEmailTriggers = require("./email");
+const os = require("os");
 
 const logger = Logger.global;
 
@@ -54,6 +55,30 @@ class ProtectWebhookPlatform {
 		this.bindAddress = this.config.bindAddress || "0.0.0.0"; // default: all interfaces (but we'll enforce local-only)
 		this.port = this.config.port || 12050;
 		this.enforceLocalOnly = this.config.enforceLocalOnly !== false; // default true
+		// Host/IP da usare nella generazione degli URL webhook (override manuale oppure auto‑detect)
+		this.publicHost = this.config.publicHost || this._detectFirstPrivateIp();
+		// URL pubblico completo (https, porta custom, eventuale basePath). Ha priorità su publicHost.
+		this.publicBaseUrl = null;
+		if (typeof this.config.publicBaseUrl === 'string' && this.config.publicBaseUrl.trim().length > 0) {
+			let u = this.config.publicBaseUrl.trim();
+			u = u.replace(/\/$/, '');
+			if (!/^https?:\/\//i.test(u)) {
+				u = `http://${u}`;
+			}
+			try {
+				const parsed = new URL(u);
+				this.publicBaseUrl = `${parsed.protocol}//${parsed.host}${parsed.pathname.replace(/\/$/, '')}`;
+			} catch (e) {
+				this.logger.warn(`publicBaseUrl non valida: ${this.config.publicBaseUrl} (${e.message})`);
+			}
+		}
+		// Se dietro reverse proxy, abilita uso di X-Forwarded-*
+		this.trustProxyHeaders = this.config.trustProxyHeaders === true;
+		if (this.publicHost) {
+			this.logger.info(`Base URL host: ${this.publicHost} (override via publicHost${this.config.publicHost ? '' : ' auto-detected'})`);
+		} else {
+			this.logger.info(`Base URL host non rilevato; userò bindAddress (${this.bindAddress})`);
+		}
 
 		// start once homebridge finished launching (so cached accessories are available)
 		if (api) {
@@ -185,11 +210,31 @@ class ProtectWebhookPlatform {
 
 	// Compose base URL for server, prefer Host header when available
 	_serverBaseUrl(req) {
-		let host = req?.headers?.host;
-		if (!host || typeof host !== 'string' || host.trim().length === 0) {
-			host = `${this.bindAddress}:${this.port}`;
+		// 1) Se abilitato, usa X-Forwarded-Proto/Host (es. dietro reverse proxy)
+		if (this.trustProxyHeaders && req) {
+			const xfHost = req.headers['x-forwarded-host'];
+			const xfProto = req.headers['x-forwarded-proto'];
+			if (typeof xfHost === 'string' && xfHost.trim()) {
+				const proto = typeof xfProto === 'string' && xfProto.trim() ? xfProto.trim() : 'http';
+				return `${proto}://${xfHost.trim()}`;
+			}
 		}
-		return `http://${host}`;
+
+		// 2) Prova Host header se non loopback
+		let host = req?.headers?.host;
+		if (host && typeof host === 'string') host = host.trim();
+		const isLoopback = !host || /^127\.|^(localhost|\[::1\])/.test(host);
+		if (!host || isLoopback) {
+			// 3) publicBaseUrl ha priorità
+			if (this.publicBaseUrl) return this.publicBaseUrl;
+			// 4) poi publicHost
+			if (this.publicHost) return `http://${this.publicHost}:${this.port}`;
+			// 5) fallback finale a bindAddress
+			return `http://${this.bindAddress}:${this.port}`;
+		}
+		// Host valido
+		const scheme = 'http';
+		return `${scheme}://${host}`;
 	}
 
 	_computeWebhookPath(wh) {
@@ -226,6 +271,25 @@ class ProtectWebhookPlatform {
 		} catch (_) {
 			return url;
 		}
+	}
+
+	// Rileva il primo IP privato IPv4 della macchina per uso base URL
+	_detectFirstPrivateIp() {
+		try {
+			const ifs = os.networkInterfaces();
+			for (const name of Object.keys(ifs)) {
+				for (const info of ifs[name] || []) {
+					if (!info || info.family !== 'IPv4' || info.internal) continue;
+					const ip = info.address;
+					if (this._isPrivateIp(ip) && ip !== '127.0.0.1') {
+						return ip;
+					}
+				}
+			}
+		} catch (e) {
+			this.logger.debug('Auto-detect IP failed:', e.message);
+		}
+		return null;
 	}
 
 	// Ephemeral token helpers

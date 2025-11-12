@@ -1,3 +1,16 @@
+# Changelog
+
+<!-- markdownlint-disable MD024 -->
+
+All notable changes to this project will be documented in this file.
+
+## [0.3.0] - 2025-11-12
+
+- Breaking (UI): la UI ora è "draft-only". Le azioni aggiornano solo la bozza di configurazione in Homebridge; è necessario premere "Salva" per rendere persistenti i cambiamenti.
+- New: aggiunte opzioni `publicBaseUrl`, `publicHost`, `trustProxyHeaders` per comporre URL raggiungibili da UniFi Protect anche dietro proxy/HTTPS.
+- Fix: gli URL non usano più `127.0.0.1` di default; auto-rilevamento IP privato e priorità a `publicBaseUrl`/proxy headers.
+- Docs: README (EN/IT) semplificati con guida rapida all'installazione e configurazione minimale.
+
 ## [0.2.27] - 2025-11-12
 
 - Fix (UI): la rigenerazione del token ora aggiorna e salva anche la configurazione persistente (config.json) usando le API della UI; niente più modifiche solo in memoria.
@@ -13,10 +26,7 @@
 
 - Fix (UI): pulsanti "Rigenera" e "Elimina" ora mostrano feedback immediato (toast), disabilitano il bottone durante l'azione e gestiscono gli errori in modo esplicito. Nessun clic su "Salva" richiesto.
 
-# Changelog
-<!-- markdownlint-disable MD024 -->
-
-All notable changes to this project will be documented in this file.
+ 
 
 ## [0.2.20] - 2025-11-12
 
