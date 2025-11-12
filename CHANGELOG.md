@@ -1,6 +1,12 @@
 # Changelog
+<!-- markdownlint-disable MD024 -->
 
 All notable changes to this project will be documented in this file.
+
+## [0.2.13] - 2025-11-12
+
+- La UI passa la configurazione corrente al server UI evitando errori `getPluginConfig` su ambienti recenti.
+- Il server UI usa un fallback sugli env `HOMEBRIDGE_PLUGIN_CONFIG` per gestire sessioni senza payload.
 
 ## [0.2.12] - 2025-11-12
 

@@ -1,8 +1,22 @@
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
 function escapeAttr(s) { return escapeHtml(s).replace(/"/g, '&quot;'); }
 
+let pluginConfig = {};
+
 async function request(path, body) {
-  return await window.homebridge.request(path, body || {});
+  const payload = { ...(body || {}) };
+  payload.config = pluginConfig || {};
+  return await window.homebridge.request(path, payload);
+}
+
+async function loadPluginConfig() {
+  try {
+    const cfgArr = await window.homebridge.getPluginConfig();
+    pluginConfig = (Array.isArray(cfgArr) && cfgArr[0]) ? cfgArr[0] : {};
+  } catch (e) {
+    console.error('Impossibile recuperare la configurazione del plugin:', e);
+    pluginConfig = {};
+  }
 }
 
 async function loadState() {
@@ -100,11 +114,12 @@ async function ping() {
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   document.querySelector('#webhooksTable').addEventListener('click', onTableClick);
   const btnRefresh = document.getElementById('btnRefresh');
   const btnPing = document.getElementById('btnPing');
   btnRefresh && btnRefresh.addEventListener('click', () => loadState());
   btnPing && btnPing.addEventListener('click', () => ping());
+  await loadPluginConfig();
   loadState();
 });
