@@ -10,8 +10,10 @@ async function loadState() {
     const data = await request('/state');
     renderWebhooks(data.webhooks || []);
     renderEmails(data.emailTriggers || []);
+    setDiagMsg('Stato aggiornato');
   } catch (e) {
     window.homebridge.toast.error('Errore nel caricamento stato: ' + (e?.message || e));
+    setDiagMsg('Errore stato');
   }
 }
 
@@ -81,7 +83,28 @@ async function onTableClick(ev) {
   }
 }
 
+function setDiagMsg(msg) {
+  const el = document.getElementById('diagMsg');
+  if (el) el.textContent = msg;
+}
+
+async function ping() {
+  const t0 = performance.now();
+  try {
+    // semplice richiesta di stato come "ping" logico
+    await request('/state');
+    const dt = Math.round(performance.now() - t0);
+    setDiagMsg(`Ping ok (${dt}ms)`);
+  } catch (e) {
+    setDiagMsg('Ping fallito');
+  }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#webhooksTable').addEventListener('click', onTableClick);
+  const btnRefresh = document.getElementById('btnRefresh');
+  const btnPing = document.getElementById('btnPing');
+  btnRefresh && btnRefresh.addEventListener('click', () => loadState());
+  btnPing && btnPing.addEventListener('click', () => ping());
   loadState();
 });
