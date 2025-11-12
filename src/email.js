@@ -1,34 +1,55 @@
 "use strict";
 
 const { ImapFlow } = require("imapflow");
+const Logger = require("./logger");
 
 module.exports = async function setupEmailTriggers(platform) {
+	const logger = Logger.global;
+	
+	if (!platform.emailTriggers || platform.emailTriggers.length === 0) {
+		logger.diagnostic("No email triggers configured");
+		return;
+	}
+	
+	logger.diagnostic(`Setting up ${platform.emailTriggers.length} email trigger(s)...`);
+	
 	for (const cfg of platform.emailTriggers) {
-		const key = `email:${cfg.name}`;
-		const accessory = platform._getOrCreateAccessory(key, cfg.name);
-		cfg._duration = Math.max(0, (cfg.durationSeconds || 10)) * 1000;
-		cfg._debounce = Math.max(0, (cfg.debounceSeconds || 0)) * 1000;
-		cfg._lastTrigger = 0;
-		cfg._id = accessory.UUID;
-
 		try {
+			logger.diagnostic(`  Setting up email trigger: ${cfg.name}`);
+			const key = `email:${cfg.name}`;
+			const accessory = platform._getOrCreateAccessory(key, cfg.name);
+			cfg._duration = Math.max(0, (cfg.durationSeconds || 10)) * 1000;
+			cfg._debounce = Math.max(0, (cfg.debounceSeconds || 0)) * 1000;
+			cfg._lastTrigger = 0;
+			cfg._id = accessory.UUID;
+
 			await startImapMonitor(platform, cfg, accessory);
-			platform.log.info(`Email trigger '${cfg.name}' monitoring ${cfg.imapUser}@${cfg.imapHost}`);
+			platform.logger.info(`Email trigger '${cfg.name}' monitoring ${cfg.imapUser}@${cfg.imapHost}`);
+			logger.success(`  Email trigger '${cfg.name}' configured successfully`);
 		} catch (e) {
-			platform.log.error(`Failed to start email trigger '${cfg.name}':`, e.message || e);
+			logger.error(`CRITICAL: Failed to start email trigger '${cfg.name}':`, e);
+			platform.logger.error(`Failed to start email trigger '${cfg.name}':`, e.message || e);
+			// Continue with other email triggers instead of failing completely
 		}
 	}
+	
+	logger.diagnostic("Email triggers setup complete");
 }
 
 async function startImapMonitor(platform, cfg, accessory) {
-	const client = new ImapFlow({
-		host: cfg.imapHost,
-		port: cfg.imapPort || 993,
-		secure: cfg.imapTls !== false,
-		auth: { user: cfg.imapUser, pass: cfg.imapPassword },
-		logger: false,
-		keepalive: { interval: 300000, idleInterval: 300000, forceNoop: true }
-	});
+	const logger = Logger.global;
+	
+	try {
+		logger.diagnostic(`    Creating IMAP client for ${cfg.imapUser}@${cfg.imapHost}...`);
+		
+		const client = new ImapFlow({
+			host: cfg.imapHost,
+			port: cfg.imapPort || 993,
+			secure: cfg.imapTls !== false,
+			auth: { user: cfg.imapUser, pass: cfg.imapPassword },
+			logger: false,
+			keepalive: { interval: 300000, idleInterval: 300000, forceNoop: true }
+		});
 
 	// prevent overlapping processing bursts
 	cfg._processing = false;
@@ -92,19 +113,29 @@ async function startImapMonitor(platform, cfg, accessory) {
 	};
 
 	client.on('error', (err) => {
-		platform.log.warn(`IMAP error for '${cfg.name}':`, err?.message || err);
+		logger.error(`IMAP error for '${cfg.name}':`, err);
+		platform.logger.warn(`IMAP error for '${cfg.name}':`, err?.message || err);
 	});
 
-	try {
+		logger.diagnostic(`    Connecting to IMAP server...`);
 		await connectAndListen();
+		logger.diagnostic(`    IMAP monitor connected successfully`);
+		
+		cfg._imap = client;
+		
 	} catch (e) {
-		platform.log.error(`Failed to start email trigger '${cfg.name}':`, e?.message || e);
+		logger.error(`Failed to connect IMAP for '${cfg.name}':`, e);
+		platform.logger.error(`Failed to start email trigger '${cfg.name}':`, e?.message || e);
 		// retry later
-		setTimeout(() => startImapMonitor(platform, cfg, accessory).catch(err => platform.log.error('IMAP reconnect failed', err)), 5000);
-		return;
+		setTimeout(() => {
+			logger.diagnostic(`    Retrying IMAP connection for '${cfg.name}'...`);
+			startImapMonitor(platform, cfg, accessory).catch(err => {
+				logger.error('IMAP reconnect failed:', err);
+				platform.logger.error('IMAP reconnect failed', err);
+			});
+		}, 5000);
+		throw e; // Re-throw to be caught by caller
 	}
-
-	cfg._imap = client;
 }
 
 function matchSubject(subject, pattern) {

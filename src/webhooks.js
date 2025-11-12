@@ -1,11 +1,23 @@
 "use strict";
 
 const { v4: uuidv4 } = require("uuid");
+const Logger = require("./logger");
 
 module.exports = function setupWebhooks(platform) {
+	const logger = Logger.global;
+	
+	if (!platform.webhooks || platform.webhooks.length === 0) {
+		logger.diagnostic("No webhooks configured");
+		return;
+	}
+	
+	logger.diagnostic(`Setting up ${platform.webhooks.length} webhook(s)...`);
+	
 	for (const wh of platform.webhooks) {
-		const key = `webhook:${wh.name}`;
-		const accessory = platform._getOrCreateAccessory(key, wh.name);
+		try {
+			logger.diagnostic(`  Setting up webhook: ${wh.name}`);
+			const key = `webhook:${wh.name}`;
+			const accessory = platform._getOrCreateAccessory(key, wh.name);
 
 		// Keep runtime control values
 		wh._duration = Math.max(0, (wh.durationSeconds || 10)) * 1000;
@@ -70,9 +82,18 @@ module.exports = function setupWebhooks(platform) {
 		};
 
 		// Register both GET and POST
-		platform.app.get(fullPath, handler);
-		platform.app.post(fullPath, handler);
+			platform.app.get(fullPath, handler);
+			platform.app.post(fullPath, handler);
 
-		platform.log.info(`Webhook '${wh.name}' ready at ${platform._serverBaseUrl()}${fullPath} (token via header x-webhook-token or ?token=...)`);
+			platform.logger.info(`Webhook '${wh.name}' ready at ${platform._serverBaseUrl()}${fullPath} (token via header x-webhook-token or ?token=...)`);
+			logger.success(`  Webhook '${wh.name}' configured successfully`);
+			
+		} catch (err) {
+			logger.error(`CRITICAL: Failed to setup webhook '${wh.name}':`, err);
+			platform.logger.error(`Failed to setup webhook '${wh.name}':`, err);
+			// Continue with other webhooks instead of failing completely
+		}
 	}
+	
+	logger.diagnostic("Webhooks setup complete");
 }

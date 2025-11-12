@@ -2,9 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.7] - 2025-11-12
+## [0.2.8] - 2025-01-12
 
-### Debug
+### Added
+
+- Modulo Logger centralizzato per gestione logging professionale
+- Log diagnostici molto più visibili con timestamp e prefissi chiari
+- Gestione robusta degli errori in tutti i moduli critici (server, webhooks, email)
+- Banner di avvio per migliore identificazione nei log
+- Error handler per server HTTP con logging completo
+
+### Changed
+
+- Rimossi prefissi confusi `[HBUP-WEBHOOK-UI]` in favore di `[UniFi Protect Webhook]` e `[UniFi Protect Webhook UI]`
+- Tutti i moduli ora usano il Logger centralizzato per consistenza
+- Errori critici ora sempre visibili anche in console, non solo nei log di Homebridge
+- Setup di webhooks e email triggers continua anche se alcuni falliscono (resilienza)
+
+### Fixed
+
+- Eccezioni in punti critici non più silenziate
+- Errori di avvio del server HTTP ora sempre loggati
+- Fallimenti di connessione IMAP ora tracciati con retry automatico loggato
+
+## [0.2.7] - 2025-01-12
+
+### Debug UI Server
 
 - Aggiunto logging diagnostico dettagliato in `homebridge-ui/server.js` per tracciare il caricamento del server UI.
 - Console log per verificare se Homebridge esegue il server personalizzato.

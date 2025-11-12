@@ -4,25 +4,43 @@
 // as HomeKit Motion Sensors. Includes security controls for local-network-only access and per-webhook tokens.
 
 const { v4: uuidv4 } = require("uuid");
+const Logger = require("./logger");
 const createServer = require("./server");
 const setupWebhooks = require("./webhooks");
 const setupEmailTriggers = require("./email");
+
+const logger = Logger.global;
 
 let hap; // set by Homebridge
 
 const PLUGIN_NAME = "homebridge-unifi-protect-webhook";
 const PLATFORM_NAME = "ProtectWebhookPlatform";
 
+// Module load diagnostics
+logger.banner();
+logger.module("Plugin module loading...");
+
 module.exports = (api) => {
+	logger.module("Homebridge API received");
+	logger.diagnostic("Registering platform:", PLATFORM_NAME);
+	
 	hap = api.hap;
 	api.registerPlatform(PLUGIN_NAME, PLATFORM_NAME, ProtectWebhookPlatform);
+	
+	logger.success("Platform registered successfully");
 };
 
 class ProtectWebhookPlatform {
 	constructor(log, config, api) {
+		logger.module("Platform constructor called");
+		
 		this.log = log;
+		this.logger = new Logger(log);
 		this.api = api;
 		this.config = config || {};
+
+		// Log configuration for diagnostics
+		this.logger.logConfig(this.config);
 
 		this.accessories = new Map(); // name -> accessory
 		this.webhooks = Array.isArray(this.config.webhooks) ? this.config.webhooks : [];
@@ -40,18 +58,23 @@ class ProtectWebhookPlatform {
 		// start once homebridge finished launching (so cached accessories are available)
 		if (api) {
 			this.api.on("didFinishLaunching", () => {
+				logger.diagnostic("didFinishLaunching event received");
+				this.logger.info("Starting initialization...");
 				try {
 					this._initialize();
 				} catch (e) {
-					this.log.error("Initialization failed:", e);
+					logger.error("Initialization failed:", e);
+					this.logger.error("Initialization failed:", e);
 				}
 			});
+		} else {
+			logger.warn("No Homebridge API provided to platform constructor");
 		}
 	}
 
 	// Called for restored accessories from cache
 	configureAccessory(accessory) {
-		this.log.debug("Restoring accessory from cache:", accessory.displayName);
+		this.logger.debug("Restoring accessory from cache:", accessory.displayName);
 		this.accessories.set(accessory.context.key, accessory);
 		// ensure service present
 		const service = accessory.getService(hap.Service.MotionSensor) ||
@@ -60,12 +83,21 @@ class ProtectWebhookPlatform {
 	}
 
 	_initialize() {
+		logger.diagnostic("_initialize() called");
+		this.logger.info("Creating HTTP server...");
+		
 		const { app, server } = createServer(this);
 		this.app = app;
 		this.server = server;
+		
+		logger.diagnostic("Server created, setting up webhooks...");
 		setupWebhooks(this);
+		
+		logger.diagnostic("Setting up email triggers...");
 		setupEmailTriggers(this);
-		this.log.info(`${PLUGIN_NAME} ready: ${this.webhooks.length} webhook(s), ${this.emailTriggers.length} email trigger(s)`);
+		
+		this.logger.success(`Plugin ready: ${this.webhooks.length} webhook(s), ${this.emailTriggers.length} email trigger(s)`);
+		logger.diagnostic("Initialization complete!");
 	}
 
 
@@ -81,7 +113,7 @@ class ProtectWebhookPlatform {
 			accessory.category = hap.Categories.SENSOR;
 			accessory.addService(hap.Service.MotionSensor, displayName);
 			this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-			this.log.info(`Registered accessory '${displayName}'`);
+			this.logger.info(`Registered accessory '${displayName}'`);
 		}
 		this.accessories.set(key, accessory);
 		return accessory;
@@ -94,7 +126,7 @@ class ProtectWebhookPlatform {
 		accessory._resetTimer = setTimeout(() => {
 			service.updateCharacteristic(hap.Characteristic.MotionDetected, false);
 		}, Math.max(0, durationMs || 10000));
-		this.log.debug(`Accessory '${name}' set to ON for ${Math.max(0, durationMs || 10000)}ms`);
+		this.logger.debug(`Accessory '${name}' set to ON for ${Math.max(0, durationMs || 10000)}ms`);
 	}
 
 	_matchSubject(subject, pattern) {

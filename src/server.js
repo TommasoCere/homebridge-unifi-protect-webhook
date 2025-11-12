@@ -3,19 +3,42 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { v4: uuidv4 } = require("uuid");
+const Logger = require("./logger");
+
+// Async error wrapper for Express routes
+function asyncHandler(fn) {
+	return (req, res, next) => {
+		Promise.resolve(fn(req, res, next)).catch((err) => {
+			Logger.global.error("Unhandled error in route handler:", err);
+			if (!res.headersSent) {
+				res.status(500).json({ error: "internal server error" });
+			}
+			next(err);
+		});
+	};
+}
 
 module.exports = function createServer(platform) {
-	const app = express();
-	app.disable("x-powered-by");
-	app.use(bodyParser.json({ limit: "256kb" }));
-	app.use(bodyParser.urlencoded({ extended: false }));
+	const logger = Logger.global;
+	
+	try {
+		logger.diagnostic("Creating Express app...");
+		const app = express();
+		app.disable("x-powered-by");
+		app.use(bodyParser.json({ limit: "256kb" }));
+		app.use(bodyParser.urlencoded({ extended: false }));
 
-	// Basic request logger at debug level (with redaction)
-	app.use((req, res, next) => {
-		const redactedUrl = platform._redactUrl(req.url);
-		platform.log.debug(`HTTP ${req.method} ${redactedUrl} from ${platform._getRemoteIp(req)}`);
-		next();
-	});
+		// Basic request logger at debug level (with redaction)
+		app.use((req, res, next) => {
+			try {
+				const redactedUrl = platform._redactUrl(req.url);
+				platform.logger.debug(`HTTP ${req.method} ${redactedUrl} from ${platform._getRemoteIp(req)}`);
+				next();
+			} catch (err) {
+				logger.error("Error in request logger middleware:", err);
+				next();
+			}
+		});
 
 	// Security middleware: enforce local LAN only if enabled
 	app.use((req, res, next) => {
@@ -146,16 +169,37 @@ module.exports = function createServer(platform) {
 	// Nota: la UI è ora integrata in Homebridge UI X tramite `homebridge-ui/`.
 	// Non serviamo più una pagina esterna su /admin/ui.
 
-	const server = app.listen(platform.port, platform.bindAddress, () => {
-		platform.log.info(`Webhook server listening on ${platform._serverBaseUrl()} (local-only=${platform.enforceLocalOnly})`);
-	});
+		logger.diagnostic("Starting HTTP server...");
+		const server = app.listen(platform.port, platform.bindAddress, () => {
+			platform.logger.info(`Webhook server listening on ${platform._serverBaseUrl()} (local-only=${platform.enforceLocalOnly})`);
+			logger.success("HTTP server started successfully");
+		});
 
-	// graceful shutdown
-	const shutdown = () => {
-		try { server && server.close(); } catch (_) {}
-	};
-	process.on("SIGINT", shutdown);
-	process.on("SIGTERM", shutdown);
+		// Error handler for server
+		server.on('error', (err) => {
+			logger.error("HTTP server error:", err);
+			platform.logger.error("HTTP server error:", err);
+		});
 
-	return { app, server };
+		// graceful shutdown
+		const shutdown = () => {
+			logger.diagnostic("Shutting down HTTP server...");
+			try { 
+				server && server.close(() => {
+					logger.diagnostic("HTTP server closed");
+				}); 
+			} catch (err) {
+				logger.error("Error closing HTTP server:", err);
+			}
+		};
+		process.on("SIGINT", shutdown);
+		process.on("SIGTERM", shutdown);
+
+		return { app, server };
+		
+	} catch (err) {
+		logger.error("CRITICAL: Failed to create HTTP server:", err);
+		platform.logger.error("CRITICAL: Failed to create HTTP server:", err);
+		throw err;
+	}
 }

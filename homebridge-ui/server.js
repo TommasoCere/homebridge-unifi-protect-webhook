@@ -2,25 +2,32 @@
 
 const { PluginUiServer } = require("@homebridge/plugin-ui-utils");
 
-console.log("[HBUP-WEBHOOK-UI] Loading server.js...");
+const UI_PREFIX = "[UniFi Protect Webhook UI]";
+
+function uiLog(message, ...args) {
+	const timestamp = new Date().toISOString();
+	console.log(`${timestamp} ${UI_PREFIX} ${message}`, ...args);
+}
+
+uiLog("═══════════════════════════════════════");
+uiLog("UI Server module loading...");
+uiLog("═══════════════════════════════════════");
 
 class UiServer extends PluginUiServer {
-  constructor() {
-    console.log("[HBUP-WEBHOOK-UI] Constructor called");
-    super();
-
-    console.log("[HBUP-WEBHOOK-UI] Registering request handlers...");
-    this.onRequest("/state", this.handleState.bind(this));
-    this.onRequest("/info", this.handleInfo.bind(this));
-    this.onRequest("/ephemeral", this.handleEphemeral.bind(this));
-    this.onRequest("/regenerate", this.handleRegenerate.bind(this));
-
-    console.log("[HBUP-WEBHOOK-UI] Calling ready()...");
-    this.ready();
-    console.log("[HBUP-WEBHOOK-UI] Server ready!");
-  }
-
-  getConfig() {
+	constructor() {
+		uiLog("Constructor called");
+		super();
+		
+		uiLog("Registering request handlers...");
+		this.onRequest("/state", this.handleState.bind(this));
+		this.onRequest("/info", this.handleInfo.bind(this));
+		this.onRequest("/ephemeral", this.handleEphemeral.bind(this));
+		this.onRequest("/regenerate", this.handleRegenerate.bind(this));
+		
+		uiLog("Calling ready()...");
+		this.ready();
+		uiLog("✓ UI Server ready!");
+	}  getConfig() {
     const cfgArr = this.homebridge.getPluginConfig() || [];
     return cfgArr[0] || {};
   }
@@ -40,14 +47,20 @@ class UiServer extends PluginUiServer {
   }
 
   async handleState() {
-    console.log("[HBUP-WEBHOOK-UI] handleState called");
+    uiLog("handleState() called");
     const url = `${this.getBaseUrl()}/admin/state`;
+    uiLog("Fetching from:", url);
     const res = await fetch(url, { headers: this.getHeaders() });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      uiLog("State fetch failed:", res.status);
+      throw new Error(`HTTP ${res.status}`);
+    }
+    uiLog("State fetched successfully");
     return await res.json();
   }
 
   async handleInfo(payload) {
+    uiLog("handleInfo() called for:", payload?.name);
     const name = payload?.name;
     if (!name) throw new Error("missing name");
     const url = `${this.getBaseUrl()}/admin/webhooks/${encodeURIComponent(name)}/info`;
@@ -57,6 +70,7 @@ class UiServer extends PluginUiServer {
   }
 
   async handleEphemeral(payload) {
+    uiLog("handleEphemeral() called for:", payload?.name);
     const name = payload?.name;
     const ttl = Math.max(10, Math.min(3600, parseInt(payload?.ttl || 300)));
     if (!name) throw new Error("missing name");
@@ -67,6 +81,7 @@ class UiServer extends PluginUiServer {
   }
 
   async handleRegenerate(payload) {
+    uiLog("handleRegenerate() called for:", payload?.name);
     const name = payload?.name;
     if (!name) throw new Error("missing name");
     const url = `${this.getBaseUrl()}/admin/webhooks/${encodeURIComponent(name)}/regenerate`;
@@ -77,8 +92,8 @@ class UiServer extends PluginUiServer {
 }
 
 // Istanzia e avvia il server (pattern IIFE)
-console.log("[HBUP-WEBHOOK-UI] About to instantiate UiServer...");
+uiLog("About to instantiate UiServer...");
 (() => {
   new UiServer();
 })();
-console.log("[HBUP-WEBHOOK-UI] server.js execution complete.");
+uiLog("✓ UI Server module execution complete");
