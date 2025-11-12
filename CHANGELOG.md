@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.9] - 2025-01-12
+
+### Added
+
+- **CONFIGURATION.md**: Guida completa alla configurazione del plugin in Homebridge
+- **check-config.js**: Script diagnostico per verificare se il plugin è configurato correttamente
+- Documentazione chiara sul problema "plugin installato ma non appare" (mancanza di configurazione nel config.json)
+
+### Changed
+
+- README aggiornato con sezione "Configurazione Richiesta" prominente
+- Enfasi sul fatto che il plugin DEVE essere configurato in config.json per apparire
+
+### Fixed
+
+- Documentazione confusa sull'installazione che non menzionava la configurazione obbligatoria
+
 ## [0.2.8] - 2025-01-12
 
 ### Added

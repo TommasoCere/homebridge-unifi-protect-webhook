@@ -13,9 +13,46 @@ Plugin per Homebridge che espone endpoint Webhook locali e trigger via Email IMA
 
 ## Installazione
 
-1. Installa il plugin nella cartella di Homebridge e lancia `npm install` nella cartella del plugin.
-2. Riavvia Homebridge.
-3. Configura dalla UI di Homebridge (Platform: `ProtectWebhookPlatform`).
+1. Installa il plugin:
+   ```bash
+   npm install -g homebridge-unifi-protect-webhook
+   ```
+2. **Aggiungi la configurazione** al file `config.json` di Homebridge (vedi sezione Configurazione)
+3. Riavvia Homebridge
+4. Il plugin dovrebbe apparire nella lista dei plugin attivi in Homebridge UI
+
+### ⚠️ IMPORTANTE: Configurazione Richiesta
+
+**Se non vedi alcun log del plugin**, significa che manca la configurazione base nel `config.json`.
+
+**Configurazione minima richiesta:**
+
+```json
+{
+  "platforms": [
+    {
+      "platform": "ProtectWebhookPlatform",
+      "name": "UniFi Protect Webhook"
+    }
+  ]
+}
+```
+
+📖 **Vedi [CONFIGURATION.md](./CONFIGURATION.md) per la guida completa alla configurazione.**
+
+### Verifica Configurazione
+
+Puoi verificare se il plugin è configurato correttamente con:
+
+```bash
+node check-config.js
+```
+
+Questo script controllerà se:
+- Il plugin è installato
+- La configurazione è presente nel `config.json`
+- Tutti i campi richiesti sono impostati
+- Ci sono warning o errori di configurazione
 
 ### Dove trovare la UI Amministrativa (integrata)
 
