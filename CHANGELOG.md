@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.11] - 2025-01-12
+
+### Added
+
+- Abilitata la flag `customUi` nello schema per abilitare la UI personalizzata di Homebridge.
+- Creato scaffolding dell'interfaccia in `homebridge-ui/public/index.html` con Bootstrap 5 e API `window.homebridge`.
+- Implementato server UI minimale in `homebridge-ui/server.js` con endpoint dimostrativo `/test-webhook-url` e corretta chiamata a `this.ready()`.
+
+### Changed
+
+- Sostituito il layout UI precedente con una base leggera pronta per ulteriori personalizzazioni.
+
 ## [0.2.10] - 2025-01-12
 
 ### Changed
