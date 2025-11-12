@@ -115,3 +115,39 @@ Reolink email filter: set `subjectMatch` to a stable substring (e.g. `Reolink Al
 ## Logging
 
 Uses Homebridge logger (info/debug/warn/error). Enable debug for detailed request tracing.
+
+## Child Bridge (Plugin Logs button)
+
+To get a dedicated "Plugin Logs" button and isolate crashes, run the plugin as a **Child Bridge**:
+
+1. Open Homebridge UI → Plugins → `homebridge-unifi-protect-webhook`.
+2. Click the wrench (settings) icon.
+3. Enable the toggle **Run as Child Bridge** (wording may be "Enable Child Bridge" depending on UI version).
+4. Save and restart Homebridge.
+
+Benefits:
+
+- Separate process: a fault in webhooks or IMAP code won't crash the main bridge.
+- Dedicated log stream: you will see the plugin banner and diagnostic lines under the Plugin Logs tab.
+- Easier restarts and memory isolation.
+
+Notes:
+
+- No configuration changes required; existing config.json entries are reused.
+- Port binding remains the same; ensure the chosen port isn't used by another Child Bridge plugin.
+- Disable and re‑enable Child Bridge if the UI doesn't show the logs after the first restart.
+
+Example of expected startup lines after enabling:
+
+```text
+═══════════════════════════════════════════════════
+  UniFi Protect Webhook Plugin
+  Webhook & Email triggers → HomeKit Motion Sensors
+═══════════════════════════════════════════════════
+```
+Followed by diagnostic entries like:
+
+```text
+[DIAGNOSTIC] Creating HTTP server...
+[DIAGNOSTIC] Server created, setting up webhooks...
+```
